@@ -341,7 +341,7 @@ func (m *Miner) mineOne(ctx context.Context, addr address.Address, base *MiningB
 }
 
 func (m *Miner) computeVRF(ctx context.Context, addr address.Address, input []byte) ([]byte, error) {
-	w, err := m.getMinerWorker(ctx, addr, nil)
+	w, err := m.getMinerWorker(ctx, addr, types.EmptyTSK)
 	if err != nil {
 		return nil, err
 	}
@@ -349,12 +349,12 @@ func (m *Miner) computeVRF(ctx context.Context, addr address.Address, input []by
 	return gen.ComputeVRF(ctx, m.api.WalletSign, w, addr, gen.DSepTicket, input)
 }
 
-func (m *Miner) getMinerWorker(ctx context.Context, addr address.Address, ts *types.TipSet) (address.Address, error) {
+func (m *Miner) getMinerWorker(ctx context.Context, addr address.Address, tsk types.TipSetKey) (address.Address, error) {
 	ret, err := m.api.StateCall(ctx, &types.Message{
 		From:   addr,
 		To:     addr,
 		Method: actors.MAMethods.GetWorkerAddr,
-	}, ts)
+	}, tsk)
 	if err != nil {
 		return address.Undef, xerrors.Errorf("failed to get miner worker addr: %w", err)
 	}

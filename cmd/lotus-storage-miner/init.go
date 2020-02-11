@@ -486,7 +486,7 @@ func configureStorageMiner(ctx context.Context, api lapi.FullNode, addr address.
 		To:     addr,
 		From:   addr,
 		Method: actors.MAMethods.GetWorkerAddr,
-	}, nil)
+	}, types.EmptyTSK)
 	if err != nil {
 		return xerrors.Errorf("failed to get worker address: %w", err)
 	}

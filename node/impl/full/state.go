@@ -113,7 +113,11 @@ func (a *StateAPI) StatePledgeCollateral(ctx context.Context, ts *types.TipSet) 
 	return types.BigFromBytes(ret.Return), nil
 }
 
-func (a *StateAPI) StateCall(ctx context.Context, msg *types.Message, ts *types.TipSet) (*api.MethodCall, error) {
+func (a *StateAPI) StateCall(ctx context.Context, msg *types.Message, tsk types.TipSetKey) (*api.MethodCall, error) {
+	ts, err := a.getTipSetFromKey(tsk)
+	if err != nil {
+		return nil, xerrors.Errorf("loading tipset %s: %w", tsk, err)
+	}
 	return a.StateManager.Call(ctx, msg, ts)
 }
 
@@ -437,4 +441,12 @@ func (a *StateAPI) MsigGetAvailableBalance(ctx context.Context, addr address.Add
 	minBalance := types.BigDiv(st.InitialBalance, types.NewInt(st.UnlockDuration))
 	minBalance = types.BigMul(minBalance, types.NewInt(offset))
 	return types.BigSub(act.Balance, minBalance), nil
+}
+
+func (a *StateAPI) getTipSetFromKey(tsk types.TipSetKey) (*types.TipSet, error) {
+	if tsk.IsEmpty() {
+		return a.Chain.GetHeaviestTipSet(), nil
+	} else {
+		return a.Chain.LoadTipSet(tsk)
+	}
 }

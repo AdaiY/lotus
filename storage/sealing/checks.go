@@ -85,7 +85,7 @@ func checkSeal(ctx context.Context, maddr address.Address, si SectorInfo, api se
 		Method:   actors.SMAMethods.ComputeDataCommitment,
 		Params:   ccparams,
 	}
-	r, err := api.StateCall(ctx, ccmt, nil)
+	r, err := api.StateCall(ctx, ccmt, types.EmptyTSK)
 	if err != nil {
 		return &ErrApi{xerrors.Errorf("calling ComputeDataCommitment: %w", err)}
 	}

@@ -29,7 +29,7 @@ type TicketFn func(context.Context) (*sectorbuilder.SealTicket, error)
 
 type sealingApi interface { // TODO: trim down
 	// Call a read only method on actors (no interaction with the chain required)
-	StateCall(context.Context, *types.Message, *types.TipSet) (*api.MethodCall, error)
+	StateCall(context.Context, *types.Message, types.TipSetKey) (*api.MethodCall, error)
 	StateMinerWorker(context.Context, address.Address, *types.TipSet) (address.Address, error)
 	StateMinerElectionPeriodStart(ctx context.Context, actor address.Address, ts *types.TipSet) (uint64, error)
 	StateMinerSectors(context.Context, address.Address, *types.TipSet) ([]*api.ChainSectorInfo, error)

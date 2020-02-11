@@ -827,7 +827,7 @@ var stateCallCmd = &cli.Command{
 			GasPrice: types.NewInt(0),
 			Method:   method,
 			Params:   params,
-		}, ts)
+		}, ts.Key())
 		if err != nil {
 			return fmt.Errorf("state call failed: %s", err)
 		}
