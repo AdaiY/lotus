@@ -34,9 +34,9 @@ type eventApi interface {
 	ChainNotify(context.Context) (<-chan []*store.HeadChange, error)
 	ChainGetBlockMessages(context.Context, cid.Cid) (*api.BlockMessages, error)
 	ChainGetTipSetByHeight(context.Context, uint64, *types.TipSet) (*types.TipSet, error)
-	StateGetReceipt(context.Context, cid.Cid, *types.TipSet) (*types.MessageReceipt, error)
+	StateGetReceipt(context.Context, cid.Cid, types.TipSetKey) (*types.MessageReceipt, error)
 
-	StateGetActor(ctx context.Context, actor address.Address, ts *types.TipSet) (*types.Actor, error) // optional / for CalledMsg
+	StateGetActor(ctx context.Context, actor address.Address, tsk types.TipSetKey) (*types.Actor, error) // optional / for CalledMsg
 }
 
 type Events struct {
