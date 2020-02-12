@@ -81,7 +81,11 @@ func (a *StateAPI) StateMinerPower(ctx context.Context, maddr address.Address, t
 	}, nil
 }
 
-func (a *StateAPI) StateMinerWorker(ctx context.Context, m address.Address, ts *types.TipSet) (address.Address, error) {
+func (a *StateAPI) StateMinerWorker(ctx context.Context, m address.Address, tsk types.TipSetKey) (address.Address, error) {
+	ts, err := a.getTipSetFromKey(tsk)
+	if err != nil {
+		return address.Undef, xerrors.Errorf("loading tipset %s: %w", tsk, err)
+	}
 	return stmgr.GetMinerWorker(ctx, a.StateManager, ts, m)
 }
 

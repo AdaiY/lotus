@@ -46,7 +46,7 @@ func NewProviderNodeAdapter(dag dtypes.StagingDAG, secb *sectorblocks.SectorBloc
 func (n *ProviderNodeAdapter) PublishDeals(ctx context.Context, deal storagemarket.MinerDeal) (storagemarket.DealID, cid.Cid, error) {
 	log.Info("publishing deal")
 
-	worker, err := n.StateMinerWorker(ctx, deal.Proposal.Provider, nil)
+	worker, err := n.StateMinerWorker(ctx, deal.Proposal.Provider, types.EmptyTSK)
 	if err != nil {
 		return 0, cid.Undef, err
 	}
@@ -150,7 +150,7 @@ func (n *ProviderNodeAdapter) ListProviderDeals(ctx context.Context, addr addres
 }
 
 func (n *ProviderNodeAdapter) GetMinerWorker(ctx context.Context, miner address.Address) (address.Address, error) {
-	addr, err := n.StateMinerWorker(ctx, miner, nil)
+	addr, err := n.StateMinerWorker(ctx, miner, types.EmptyTSK)
 	return addr, err
 }
 

@@ -68,7 +68,7 @@ func (n *ClientNodeAdapter) ListStorageProviders(ctx context.Context) ([]*storag
 	var out []*storagemarket.StorageProviderInfo
 
 	for _, addr := range addresses {
-		workerAddr, err := n.StateMinerWorker(ctx, addr, ts)
+		workerAddr, err := n.StateMinerWorker(ctx, addr, ts.Key())
 		if err != nil {
 			return nil, err
 		}

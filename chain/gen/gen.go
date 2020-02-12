@@ -421,7 +421,7 @@ type MiningCheckAPI interface {
 
 	StateMinerPower(context.Context, address.Address, types.TipSetKey) (api.MinerPower, error)
 
-	StateMinerWorker(context.Context, address.Address, *types.TipSet) (address.Address, error)
+	StateMinerWorker(context.Context, address.Address, types.TipSetKey) (address.Address, error)
 
 	StateMinerSectorSize(context.Context, address.Address, *types.TipSet) (uint64, error)
 
@@ -455,7 +455,11 @@ func (mca mca) StateMinerPower(ctx context.Context, maddr address.Address, tsk t
 	}, err
 }
 
-func (mca mca) StateMinerWorker(ctx context.Context, maddr address.Address, ts *types.TipSet) (address.Address, error) {
+func (mca mca) StateMinerWorker(ctx context.Context, maddr address.Address, tsk types.TipSetKey) (address.Address, error) {
+	ts, err := mca.sm.ChainStore().LoadTipSet(tsk)
+	if err != nil {
+		return address.Undef, xerrors.Errorf("loading tipset %s: %w", tsk, err)
+	}
 	return stmgr.GetMinerWorkerRaw(ctx, mca.sm, ts.ParentState(), maddr)
 }
 
@@ -511,7 +515,7 @@ func IsRoundWinner(ctx context.Context, ts *types.TipSet, round int64, miner add
 		return nil, xerrors.Errorf("chain get randomness: %w", err)
 	}
 
-	mworker, err := a.StateMinerWorker(ctx, miner, ts)
+	mworker, err := a.StateMinerWorker(ctx, miner, ts.Key())
 	if err != nil {
 		return nil, xerrors.Errorf("failed to get miner worker: %w", err)
 	}

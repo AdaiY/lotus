@@ -70,7 +70,7 @@ func (a *API) ClientStartDeal(ctx context.Context, data cid.Cid, addr address.Ad
 		return nil, xerrors.Errorf("failed getting peer ID: %w", err)
 	}
 
-	mw, err := a.StateMinerWorker(ctx, miner, nil)
+	mw, err := a.StateMinerWorker(ctx, miner, types.EmptyTSK)
 	if err != nil {
 		return nil, xerrors.Errorf("failed getting miner worker: %w", err)
 	}
