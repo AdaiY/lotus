@@ -89,7 +89,11 @@ func (a *StateAPI) StateMinerWorker(ctx context.Context, m address.Address, tsk 
 	return stmgr.GetMinerWorker(ctx, a.StateManager, ts, m)
 }
 
-func (a *StateAPI) StateMinerPeerID(ctx context.Context, m address.Address, ts *types.TipSet) (peer.ID, error) {
+func (a *StateAPI) StateMinerPeerID(ctx context.Context, m address.Address, tsk types.TipSetKey) (peer.ID, error) {
+	ts, err := a.getTipSetFromKey(tsk)
+	if err != nil {
+		return "", xerrors.Errorf("loading tipset %s: %w", tsk, err)
+	}
 	return stmgr.GetMinerPeerID(ctx, a.StateManager, ts, m)
 }
 

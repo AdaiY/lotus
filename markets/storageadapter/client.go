@@ -78,7 +78,7 @@ func (n *ClientNodeAdapter) ListStorageProviders(ctx context.Context) ([]*storag
 			return nil, err
 		}
 
-		peerId, err := n.StateMinerPeerID(ctx, addr, ts)
+		peerId, err := n.StateMinerPeerID(ctx, addr, ts.Key())
 		if err != nil {
 			return nil, err
 		}
