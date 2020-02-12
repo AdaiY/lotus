@@ -431,7 +431,7 @@ var stateGetActorCmd = &cli.Command{
 			return err
 		}
 
-		a, err := api.StateGetActor(ctx, addr, ts)
+		a, err := api.StateGetActor(ctx, addr, ts.Key())
 		if err != nil {
 			return err
 		}
@@ -545,7 +545,7 @@ var stateReadStateCmd = &cli.Command{
 			return err
 		}
 
-		act, err := api.StateGetActor(ctx, addr, ts)
+		act, err := api.StateGetActor(ctx, addr, ts.Key())
 		if err != nil {
 			return err
 		}
@@ -809,7 +809,7 @@ var stateCallCmd = &cli.Command{
 			return fmt.Errorf("failed to parse 'value': %s", err)
 		}
 
-		act, err := api.StateGetActor(ctx, toa, ts)
+		act, err := api.StateGetActor(ctx, toa, ts.Key())
 		if err != nil {
 			return fmt.Errorf("failed to lookup target actor: %s", err)
 		}

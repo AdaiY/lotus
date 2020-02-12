@@ -13,7 +13,7 @@ func (e *calledEvents) CheckMsg(ctx context.Context, smsg store.ChainMsg, hnd Ca
 	msg := smsg.VMMessage()
 
 	return func(ts *types.TipSet) (done bool, more bool, err error) {
-		fa, err := e.cs.StateGetActor(ctx, msg.From, ts)
+		fa, err := e.cs.StateGetActor(ctx, msg.From, ts.Key())
 		if err != nil {
 			return false, true, err
 		}

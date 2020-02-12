@@ -122,7 +122,7 @@ var mpoolStat = &cli.Command{
 			bkt.msgs[v.Message.Nonce] = v
 		}
 		for a, bkt := range buckets {
-			act, err := api.StateGetActor(ctx, a, ts)
+			act, err := api.StateGetActor(ctx, a, ts.Key())
 			if err != nil {
 				fmt.Printf("%s, err: %s\n", a, err)
 				continue

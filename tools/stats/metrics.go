@@ -218,7 +218,7 @@ func RecordTipsetMessagesPoints(ctx context.Context, api api.FullNode, pl *Point
 		p = NewPoint("chain.message_size", len(bs))
 		pl.AddPoint(p)
 
-		actor, err := api.StateGetActor(ctx, msg.Message.To, tipset)
+		actor, err := api.StateGetActor(ctx, msg.Message.To, tipset.Key())
 		if err != nil {
 			return err
 		}

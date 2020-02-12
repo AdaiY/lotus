@@ -150,7 +150,7 @@ func syncHead(ctx context.Context, api api.FullNode, st *storage, ts *types.TipS
 				}
 
 				par(50, aadrs, func(addr address.Address) {
-					act, err := api.StateGetActor(ctx, addr, ts)
+					act, err := api.StateGetActor(ctx, addr, ts.Key())
 					if err != nil {
 						log.Error(err)
 						return

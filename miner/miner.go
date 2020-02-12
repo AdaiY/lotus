@@ -404,7 +404,7 @@ func (m *Miner) createBlock(base *MiningBase, addr address.Address, ticket *type
 	return m.api.MinerCreateBlock(context.TODO(), addr, base.ts, ticket, proof, msgs, nheight, uint64(uts))
 }
 
-type ActorLookup func(context.Context, address.Address, *types.TipSet) (*types.Actor, error)
+type ActorLookup func(context.Context, address.Address, types.TipSetKey) (*types.Actor, error)
 
 func countFrom(msgs []*types.SignedMessage, from address.Address) (out int) {
 	for _, msg := range msgs {
@@ -431,7 +431,7 @@ func SelectMessages(ctx context.Context, al ActorLookup, ts *types.TipSet, msgs 
 		from := msg.Message.From
 
 		if _, ok := inclNonces[from]; !ok {
-			act, err := al(ctx, from, ts)
+			act, err := al(ctx, from, ts.Key())
 			if err != nil {
 				log.Warnf("failed to check message sender balance, skipping message: %+v", err)
 				continue
