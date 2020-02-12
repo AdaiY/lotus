@@ -276,7 +276,7 @@ func (m *Miner) GetBestMiningCandidate(ctx context.Context) (*MiningBase, error)
 }
 
 func (m *Miner) hasPower(ctx context.Context, addr address.Address, ts *types.TipSet) (bool, error) {
-	power, err := m.api.StateMinerPower(ctx, addr, ts)
+	power, err := m.api.StateMinerPower(ctx, addr, ts.Key())
 	if err != nil {
 		return false, err
 	}

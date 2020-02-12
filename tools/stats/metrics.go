@@ -159,7 +159,7 @@ func RecordTipsetStatePoints(ctx context.Context, api api.FullNode, pl *PointLis
 	p = NewPoint("network.balance", netBalFilFloat)
 	pl.AddPoint(p)
 
-	power, err := api.StateMinerPower(ctx, address.Address{}, tipset)
+	power, err := api.StateMinerPower(ctx, address.Address{}, tipset.Key())
 	if err != nil {
 		return err
 	}
@@ -169,7 +169,7 @@ func RecordTipsetStatePoints(ctx context.Context, api api.FullNode, pl *PointLis
 
 	miners, err := api.StateListMiners(ctx, tipset)
 	for _, miner := range miners {
-		power, err := api.StateMinerPower(ctx, miner, tipset)
+		power, err := api.StateMinerPower(ctx, miner, tipset.Key())
 		if err != nil {
 			return err
 		}

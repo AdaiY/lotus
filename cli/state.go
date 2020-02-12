@@ -115,7 +115,7 @@ var statePowerCmd = &cli.Command{
 			return err
 		}
 
-		power, err := api.StateMinerPower(ctx, maddr, ts)
+		power, err := api.StateMinerPower(ctx, maddr, ts.Key())
 		if err != nil {
 			return err
 		}

@@ -55,7 +55,11 @@ func (a *StateAPI) StateMinerProvingSet(ctx context.Context, addr address.Addres
 	return stmgr.GetMinerProvingSet(ctx, a.StateManager, ts, addr)
 }
 
-func (a *StateAPI) StateMinerPower(ctx context.Context, maddr address.Address, ts *types.TipSet) (api.MinerPower, error) {
+func (a *StateAPI) StateMinerPower(ctx context.Context, maddr address.Address, tsk types.TipSetKey) (api.MinerPower, error) {
+	ts, err := a.getTipSetFromKey(tsk)
+	if err != nil {
+		return api.MinerPower{}, xerrors.Errorf("loading tipset %s: %w", tsk, err)
+	}
 	mpow, tpow, err := stmgr.GetPower(ctx, a.StateManager, ts, maddr)
 	if err != nil {
 		return api.MinerPower{}, err

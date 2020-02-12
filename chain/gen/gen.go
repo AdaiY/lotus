@@ -419,7 +419,7 @@ func (cg *ChainGen) YieldRepo() (repo.Repo, error) {
 type MiningCheckAPI interface {
 	ChainGetRandomness(context.Context, types.TipSetKey, int64) ([]byte, error)
 
-	StateMinerPower(context.Context, address.Address, *types.TipSet) (api.MinerPower, error)
+	StateMinerPower(context.Context, address.Address, types.TipSetKey) (api.MinerPower, error)
 
 	StateMinerWorker(context.Context, address.Address, *types.TipSet) (address.Address, error)
 
@@ -439,7 +439,11 @@ func (mca mca) ChainGetRandomness(ctx context.Context, pts types.TipSetKey, lb i
 	return mca.sm.ChainStore().GetRandomness(ctx, pts.Cids(), int64(lb))
 }
 
-func (mca mca) StateMinerPower(ctx context.Context, maddr address.Address, ts *types.TipSet) (api.MinerPower, error) {
+func (mca mca) StateMinerPower(ctx context.Context, maddr address.Address, tsk types.TipSetKey) (api.MinerPower, error) {
+	ts, err := mca.sm.ChainStore().LoadTipSet(tsk)
+	if err != nil {
+		return api.MinerPower{}, xerrors.Errorf("loading tipset %s: %w", tsk, err)
+	}
 	mpow, tpow, err := stmgr.GetPower(ctx, mca.sm, ts, maddr)
 	if err != nil {
 		return api.MinerPower{}, err
@@ -542,7 +546,7 @@ func IsRoundWinner(ctx context.Context, ts *types.TipSet, round int64, miner add
 		return nil, xerrors.Errorf("failed to generate electionPoSt candidates: %w", err)
 	}
 
-	pow, err := a.StateMinerPower(ctx, miner, ts)
+	pow, err := a.StateMinerPower(ctx, miner, ts.Key())
 	if err != nil {
 		return nil, xerrors.Errorf("failed to check power: %w", err)
 	}
