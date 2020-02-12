@@ -97,7 +97,7 @@ type FullNode interface {
 
 	// if tipset is nil, we'll use heaviest
 	StateCall(context.Context, *types.Message, types.TipSetKey) (*MethodCall, error)
-	StateReplay(context.Context, *types.TipSet, cid.Cid) (*ReplayResults, error)
+	StateReplay(context.Context, types.TipSetKey, cid.Cid) (*ReplayResults, error)
 	StateGetActor(ctx context.Context, actor address.Address, ts *types.TipSet) (*types.Actor, error)
 	StateReadState(ctx context.Context, act *types.Actor, ts *types.TipSet) (*ActorState, error)
 	StateListMessages(ctx context.Context, match *types.Message, ts *types.TipSet, toht uint64) ([]cid.Cid, error)

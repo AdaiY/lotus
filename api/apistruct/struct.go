@@ -102,7 +102,7 @@ type FullNodeStruct struct {
 		StateMinerSectorSize          func(context.Context, address.Address, *types.TipSet) (uint64, error)                             `perm:"read"`
 		StateMinerFaults              func(context.Context, address.Address, *types.TipSet) ([]uint64, error)                           `perm:"read"`
 		StateCall                     func(context.Context, *types.Message, types.TipSetKey) (*api.MethodCall, error)                     `perm:"read"`
-		StateReplay                   func(context.Context, *types.TipSet, cid.Cid) (*api.ReplayResults, error)                         `perm:"read"`
+		StateReplay                   func(context.Context, types.TipSetKey, cid.Cid) (*api.ReplayResults, error)                         `perm:"read"`
 		StateGetActor                 func(context.Context, address.Address, *types.TipSet) (*types.Actor, error)                       `perm:"read"`
 		StateReadState                func(context.Context, *types.Actor, *types.TipSet) (*api.ActorState, error)                       `perm:"read"`
 		StatePledgeCollateral         func(context.Context, *types.TipSet) (types.BigInt, error)                                        `perm:"read"`
@@ -426,8 +426,8 @@ func (c *FullNodeStruct) StateCall(ctx context.Context, msg *types.Message, tsk 
 	return c.Internal.StateCall(ctx, msg, tsk)
 }
 
-func (c *FullNodeStruct) StateReplay(ctx context.Context, ts *types.TipSet, mc cid.Cid) (*api.ReplayResults, error) {
-	return c.Internal.StateReplay(ctx, ts, mc)
+func (c *FullNodeStruct) StateReplay(ctx context.Context, tsk types.TipSetKey, mc cid.Cid) (*api.ReplayResults, error) {
+	return c.Internal.StateReplay(ctx, tsk, mc)
 }
 
 func (c *FullNodeStruct) StateGetActor(ctx context.Context, actor address.Address, ts *types.TipSet) (*types.Actor, error) {

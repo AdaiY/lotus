@@ -260,7 +260,7 @@ var stateReplaySetCmd = &cli.Command{
 			return err
 		}
 
-		res, err := api.StateReplay(ctx, ts, mcid)
+		res, err := api.StateReplay(ctx, ts.Key(), mcid)
 		if err != nil {
 			return xerrors.Errorf("replay call failed: %w", err)
 		}
