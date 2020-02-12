@@ -180,7 +180,11 @@ func (a *StateAPI) StateLookupID(ctx context.Context, addr address.Address, ts *
 	return state.LookupID(addr)
 }
 
-func (a *StateAPI) StateReadState(ctx context.Context, act *types.Actor, ts *types.TipSet) (*api.ActorState, error) {
+func (a *StateAPI) StateReadState(ctx context.Context, act *types.Actor, tsk types.TipSetKey) (*api.ActorState, error) {
+	ts, err := a.getTipSetFromKey(tsk)
+	if err != nil {
+		return nil, xerrors.Errorf("loading tipset %s: %w", tsk, err)
+	}
 	state, err := a.stateForTs(ctx, ts)
 	if err != nil {
 		return nil, err

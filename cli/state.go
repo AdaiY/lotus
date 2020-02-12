@@ -550,7 +550,7 @@ var stateReadStateCmd = &cli.Command{
 			return err
 		}
 
-		as, err := api.StateReadState(ctx, act, ts)
+		as, err := api.StateReadState(ctx, act, ts.Key())
 		if err != nil {
 			return err
 		}

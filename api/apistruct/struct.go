@@ -104,7 +104,7 @@ type FullNodeStruct struct {
 		StateCall                     func(context.Context, *types.Message, types.TipSetKey) (*api.MethodCall, error)                     `perm:"read"`
 		StateReplay                   func(context.Context, types.TipSetKey, cid.Cid) (*api.ReplayResults, error)                         `perm:"read"`
 		StateGetActor                 func(context.Context, address.Address, types.TipSetKey) (*types.Actor, error)                       `perm:"read"`
-		StateReadState                func(context.Context, *types.Actor, *types.TipSet) (*api.ActorState, error)                       `perm:"read"`
+		StateReadState                func(context.Context, *types.Actor, types.TipSetKey) (*api.ActorState, error)                       `perm:"read"`
 		StatePledgeCollateral         func(context.Context, *types.TipSet) (types.BigInt, error)                                        `perm:"read"`
 		StateWaitMsg                  func(context.Context, cid.Cid) (*api.MsgWait, error)                                              `perm:"read"`
 		StateListMiners               func(context.Context, *types.TipSet) ([]address.Address, error)                                   `perm:"read"`
@@ -434,8 +434,8 @@ func (c *FullNodeStruct) StateGetActor(ctx context.Context, actor address.Addres
 	return c.Internal.StateGetActor(ctx, actor, tsk)
 }
 
-func (c *FullNodeStruct) StateReadState(ctx context.Context, act *types.Actor, ts *types.TipSet) (*api.ActorState, error) {
-	return c.Internal.StateReadState(ctx, act, ts)
+func (c *FullNodeStruct) StateReadState(ctx context.Context, act *types.Actor, tsk types.TipSetKey) (*api.ActorState, error) {
+	return c.Internal.StateReadState(ctx, act, tsk)
 }
 
 func (c *FullNodeStruct) StatePledgeCollateral(ctx context.Context, ts *types.TipSet) (types.BigInt, error) {
