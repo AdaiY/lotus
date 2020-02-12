@@ -159,7 +159,7 @@ var stateSectorsCmd = &cli.Command{
 			return err
 		}
 
-		sectors, err := api.StateMinerSectors(ctx, maddr, ts)
+		sectors, err := api.StateMinerSectors(ctx, maddr, ts.Key())
 		if err != nil {
 			return err
 		}
