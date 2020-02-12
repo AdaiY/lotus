@@ -373,7 +373,11 @@ func (a *StateAPI) StateMinerSectorCount(ctx context.Context, addr address.Addre
 	return stmgr.SectorSetSizes(ctx, a.StateManager, addr, ts)
 }
 
-func (a *StateAPI) StateListMessages(ctx context.Context, match *types.Message, ts *types.TipSet, toheight uint64) ([]cid.Cid, error) {
+func (a *StateAPI) StateListMessages(ctx context.Context, match *types.Message, tsk types.TipSetKey, toheight uint64) ([]cid.Cid, error) {
+	ts, err := a.getTipSetFromKey(tsk)
+	if err != nil {
+		return nil, xerrors.Errorf("loading tipset %s: %w", tsk, err)
+	}
 	if ts == nil {
 		ts = a.Chain.GetHeaviestTipSet()
 	}

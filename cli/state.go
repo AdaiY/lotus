@@ -619,7 +619,7 @@ var stateListMessagesCmd = &cli.Command{
 			return err
 		}
 
-		msgs, err := api.StateListMessages(ctx, &types.Message{To: toa, From: froma}, ts, toh)
+		msgs, err := api.StateListMessages(ctx, &types.Message{To: toa, From: froma}, ts.Key(), toh)
 		if err != nil {
 			return err
 		}

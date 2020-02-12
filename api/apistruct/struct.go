@@ -117,7 +117,7 @@ type FullNodeStruct struct {
 		StateChangedActors            func(context.Context, cid.Cid, cid.Cid) (map[string]types.Actor, error)                           `perm:"read"`
 		StateGetReceipt               func(context.Context, cid.Cid, *types.TipSet) (*types.MessageReceipt, error)                      `perm:"read"`
 		StateMinerSectorCount         func(context.Context, address.Address, *types.TipSet) (api.MinerSectors, error)                   `perm:"read"`
-		StateListMessages             func(ctx context.Context, match *types.Message, ts *types.TipSet, toht uint64) ([]cid.Cid, error) `perm:"read"`
+		StateListMessages             func(ctx context.Context, match *types.Message, tsk types.TipSetKey, toht uint64) ([]cid.Cid, error) `perm:"read"`
 		StateCompute                  func(context.Context, uint64, []*types.Message, *types.TipSet) (cid.Cid, error)                   `perm:"read"`
 
 		MsigGetAvailableBalance func(context.Context, address.Address, *types.TipSet) (types.BigInt, error) `perm:"read"`
@@ -481,8 +481,8 @@ func (c *FullNodeStruct) StateGetReceipt(ctx context.Context, msg cid.Cid, ts *t
 	return c.Internal.StateGetReceipt(ctx, msg, ts)
 }
 
-func (c *FullNodeStruct) StateListMessages(ctx context.Context, match *types.Message, ts *types.TipSet, toht uint64) ([]cid.Cid, error) {
-	return c.Internal.StateListMessages(ctx, match, ts, toht)
+func (c *FullNodeStruct) StateListMessages(ctx context.Context, match *types.Message, tsk types.TipSetKey, toht uint64) ([]cid.Cid, error) {
+	return c.Internal.StateListMessages(ctx, match, tsk, toht)
 }
 
 func (c *FullNodeStruct) StateCompute(ctx context.Context, height uint64, msgs []*types.Message, ts *types.TipSet) (cid.Cid, error) {
