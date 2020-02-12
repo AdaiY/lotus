@@ -94,7 +94,7 @@ type FullNodeStruct struct {
 		ClientQueryAsk    func(ctx context.Context, p peer.ID, miner address.Address) (*types.SignedStorageAsk, error)                                                      `perm:"read"`
 
 		StateMinerSectors             func(context.Context, address.Address, types.TipSetKey) ([]*api.ChainSectorInfo, error)             `perm:"read"`
-		StateMinerProvingSet          func(context.Context, address.Address, *types.TipSet) ([]*api.ChainSectorInfo, error)             `perm:"read"`
+		StateMinerProvingSet          func(context.Context, address.Address, types.TipSetKey) ([]*api.ChainSectorInfo, error)             `perm:"read"`
 		StateMinerPower               func(context.Context, address.Address, *types.TipSet) (api.MinerPower, error)                     `perm:"read"`
 		StateMinerWorker              func(context.Context, address.Address, *types.TipSet) (address.Address, error)                    `perm:"read"`
 		StateMinerPeerID              func(ctx context.Context, m address.Address, ts *types.TipSet) (peer.ID, error)                   `perm:"read"`
@@ -394,8 +394,8 @@ func (c *FullNodeStruct) StateMinerSectors(ctx context.Context, addr address.Add
 	return c.Internal.StateMinerSectors(ctx, addr, tsk)
 }
 
-func (c *FullNodeStruct) StateMinerProvingSet(ctx context.Context, addr address.Address, ts *types.TipSet) ([]*api.ChainSectorInfo, error) {
-	return c.Internal.StateMinerProvingSet(ctx, addr, ts)
+func (c *FullNodeStruct) StateMinerProvingSet(ctx context.Context, addr address.Address, tsk types.TipSetKey) ([]*api.ChainSectorInfo, error) {
+	return c.Internal.StateMinerProvingSet(ctx, addr, tsk)
 }
 
 func (c *FullNodeStruct) StateMinerPower(ctx context.Context, a address.Address, ts *types.TipSet) (api.MinerPower, error) {

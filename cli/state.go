@@ -198,7 +198,7 @@ var stateProvingSetCmd = &cli.Command{
 			return err
 		}
 
-		sectors, err := api.StateMinerProvingSet(ctx, maddr, ts)
+		sectors, err := api.StateMinerProvingSet(ctx, maddr, ts.Key())
 		if err != nil {
 			return err
 		}

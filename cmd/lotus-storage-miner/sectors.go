@@ -130,7 +130,7 @@ var sectorsListCmd = &cli.Command{
 			return err
 		}
 
-		pset, err := fullApi.StateMinerProvingSet(ctx, maddr, nil)
+		pset, err := fullApi.StateMinerProvingSet(ctx, maddr, types.EmptyTSK)
 		if err != nil {
 			return err
 		}

@@ -425,7 +425,7 @@ type MiningCheckAPI interface {
 
 	StateMinerSectorSize(context.Context, address.Address, *types.TipSet) (uint64, error)
 
-	StateMinerProvingSet(context.Context, address.Address, *types.TipSet) ([]*api.ChainSectorInfo, error)
+	StateMinerProvingSet(context.Context, address.Address, types.TipSetKey) ([]*api.ChainSectorInfo, error)
 
 	WalletSign(context.Context, address.Address, []byte) (*types.Signature, error)
 }
@@ -459,7 +459,11 @@ func (mca mca) StateMinerSectorSize(ctx context.Context, maddr address.Address, 
 	return stmgr.GetMinerSectorSize(ctx, mca.sm, ts, maddr)
 }
 
-func (mca mca) StateMinerProvingSet(ctx context.Context, maddr address.Address, ts *types.TipSet) ([]*api.ChainSectorInfo, error) {
+func (mca mca) StateMinerProvingSet(ctx context.Context, maddr address.Address, tsk types.TipSetKey) ([]*api.ChainSectorInfo, error) {
+	ts, err := mca.sm.ChainStore().LoadTipSet(tsk)
+	if err != nil {
+		return nil, xerrors.Errorf("loading tipset %s: %w", tsk, err)
+	}
 	return stmgr.GetMinerProvingSet(ctx, mca.sm, ts, maddr)
 }
 
@@ -513,7 +517,7 @@ func IsRoundWinner(ctx context.Context, ts *types.TipSet, round int64, miner add
 		return nil, xerrors.Errorf("failed to compute VRF: %w", err)
 	}
 
-	pset, err := a.StateMinerProvingSet(ctx, miner, ts)
+	pset, err := a.StateMinerProvingSet(ctx, miner, ts.Key())
 	if err != nil {
 		return nil, xerrors.Errorf("failed to load proving set for miner: %w", err)
 	}
