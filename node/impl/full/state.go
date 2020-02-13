@@ -304,10 +304,14 @@ func (a *StateAPI) StateMarketBalance(ctx context.Context, addr address.Address,
 	return a.StateManager.MarketBalance(ctx, addr, ts)
 }
 
-func (a *StateAPI) StateMarketParticipants(ctx context.Context, ts *types.TipSet) (map[string]actors.StorageParticipantBalance, error) {
+func (a *StateAPI) StateMarketParticipants(ctx context.Context, tsk types.TipSetKey) (map[string]actors.StorageParticipantBalance, error) {
 	out := map[string]actors.StorageParticipantBalance{}
 
 	var state actors.StorageMarketState
+	ts, err := a.getTipSetFromKey(tsk)
+	if err != nil {
+		return nil, xerrors.Errorf("loading tipset %s: %w", tsk, err)
+	}
 	if _, err := a.StateManager.LoadActorState(ctx, actors.StorageMarketAddress, &state, ts); err != nil {
 		return nil, err
 	}
