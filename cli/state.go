@@ -472,7 +472,7 @@ var stateLookupIDCmd = &cli.Command{
 			return err
 		}
 
-		a, err := api.StateLookupID(ctx, addr, ts)
+		a, err := api.StateLookupID(ctx, addr, ts.Key())
 		if err != nil {
 			return err
 		}

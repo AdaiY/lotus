@@ -208,7 +208,11 @@ func (a *StateAPI) StateGetActor(ctx context.Context, actor address.Address, tsk
 	return state.GetActor(actor)
 }
 
-func (a *StateAPI) StateLookupID(ctx context.Context, addr address.Address, ts *types.TipSet) (address.Address, error) {
+func (a *StateAPI) StateLookupID(ctx context.Context, addr address.Address, tsk types.TipSetKey) (address.Address, error) {
+	ts, err := a.getTipSetFromKey(tsk)
+	if err != nil {
+		return address.Undef, xerrors.Errorf("loading tipset %s: %w", tsk, err)
+	}
 	state, err := a.stateForTs(ctx, ts)
 	if err != nil {
 		return address.Undef, err

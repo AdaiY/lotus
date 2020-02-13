@@ -118,7 +118,7 @@ type FullNode interface {
 	StateMarketParticipants(context.Context, types.TipSetKey) (map[string]actors.StorageParticipantBalance, error)
 	StateMarketDeals(context.Context, types.TipSetKey) (map[string]actors.OnChainDeal, error)
 	StateMarketStorageDeal(context.Context, uint64, types.TipSetKey) (*actors.OnChainDeal, error)
-	StateLookupID(context.Context, address.Address, *types.TipSet) (address.Address, error)
+	StateLookupID(context.Context, address.Address, types.TipSetKey) (address.Address, error)
 	StateChangedActors(context.Context, cid.Cid, cid.Cid) (map[string]types.Actor, error)
 	StateGetReceipt(context.Context, cid.Cid, *types.TipSet) (*types.MessageReceipt, error)
 	StateMinerSectorCount(context.Context, address.Address, *types.TipSet) (MinerSectors, error)

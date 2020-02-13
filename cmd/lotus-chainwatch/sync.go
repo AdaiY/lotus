@@ -237,7 +237,7 @@ func syncHead(ctx context.Context, api api.FullNode, st *storage, ts *types.TipS
 		}
 
 		par(50, kmaparr(addresses), func(addr address.Address) {
-			raddr, err := api.StateLookupID(ctx, addr, nil)
+			raddr, err := api.StateLookupID(ctx, addr, types.EmptyTSK)
 			if err != nil {
 				log.Warn(err)
 				return
