@@ -392,7 +392,7 @@ var stateListActorsCmd = &cli.Command{
 			return err
 		}
 
-		actors, err := api.StateListActors(ctx, ts)
+		actors, err := api.StateListActors(ctx, ts.Key())
 		if err != nil {
 			return err
 		}

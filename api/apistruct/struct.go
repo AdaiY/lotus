@@ -108,7 +108,7 @@ type FullNodeStruct struct {
 		StatePledgeCollateral         func(context.Context, types.TipSetKey) (types.BigInt, error)                                        `perm:"read"`
 		StateWaitMsg                  func(context.Context, cid.Cid) (*api.MsgWait, error)                                              `perm:"read"`
 		StateListMiners               func(context.Context, types.TipSetKey) ([]address.Address, error)                                   `perm:"read"`
-		StateListActors               func(context.Context, *types.TipSet) ([]address.Address, error)                                   `perm:"read"`
+		StateListActors               func(context.Context, types.TipSetKey) ([]address.Address, error)                                   `perm:"read"`
 		StateMarketBalance            func(context.Context, address.Address, *types.TipSet) (actors.StorageParticipantBalance, error)   `perm:"read"`
 		StateMarketParticipants       func(context.Context, *types.TipSet) (map[string]actors.StorageParticipantBalance, error)         `perm:"read"`
 		StateMarketDeals              func(context.Context, *types.TipSet) (map[string]actors.OnChainDeal, error)                       `perm:"read"`
@@ -449,8 +449,8 @@ func (c *FullNodeStruct) StateListMiners(ctx context.Context, tsk types.TipSetKe
 	return c.Internal.StateListMiners(ctx, tsk)
 }
 
-func (c *FullNodeStruct) StateListActors(ctx context.Context, ts *types.TipSet) ([]address.Address, error) {
-	return c.Internal.StateListActors(ctx, ts)
+func (c *FullNodeStruct) StateListActors(ctx context.Context, tsk types.TipSetKey) ([]address.Address, error) {
+	return c.Internal.StateListActors(ctx, tsk)
 }
 
 func (c *FullNodeStruct) StateMarketBalance(ctx context.Context, addr address.Address, ts *types.TipSet) (actors.StorageParticipantBalance, error) {

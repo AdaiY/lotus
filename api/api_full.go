@@ -113,7 +113,7 @@ type FullNode interface {
 	StatePledgeCollateral(context.Context, types.TipSetKey) (types.BigInt, error)
 	StateWaitMsg(context.Context, cid.Cid) (*MsgWait, error)
 	StateListMiners(context.Context, types.TipSetKey) ([]address.Address, error)
-	StateListActors(context.Context, *types.TipSet) ([]address.Address, error)
+	StateListActors(context.Context, types.TipSetKey) ([]address.Address, error)
 	StateMarketBalance(context.Context, address.Address, *types.TipSet) (actors.StorageParticipantBalance, error)
 	StateMarketParticipants(context.Context, *types.TipSet) (map[string]actors.StorageParticipantBalance, error)
 	StateMarketDeals(context.Context, *types.TipSet) (map[string]actors.OnChainDeal, error)

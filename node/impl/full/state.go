@@ -288,7 +288,11 @@ func (a *StateAPI) StateListMiners(ctx context.Context, tsk types.TipSetKey) ([]
 	return stmgr.ListMinerActors(ctx, a.StateManager, ts)
 }
 
-func (a *StateAPI) StateListActors(ctx context.Context, ts *types.TipSet) ([]address.Address, error) {
+func (a *StateAPI) StateListActors(ctx context.Context, tsk types.TipSetKey) ([]address.Address, error) {
+	ts, err := a.getTipSetFromKey(tsk)
+	if err != nil {
+		return nil, xerrors.Errorf("loading tipset %s: %w", tsk, err)
+	}
 	return a.StateManager.ListAllActors(ctx, ts)
 }
 
