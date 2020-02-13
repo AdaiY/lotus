@@ -296,7 +296,11 @@ func (a *StateAPI) StateListActors(ctx context.Context, tsk types.TipSetKey) ([]
 	return a.StateManager.ListAllActors(ctx, ts)
 }
 
-func (a *StateAPI) StateMarketBalance(ctx context.Context, addr address.Address, ts *types.TipSet) (actors.StorageParticipantBalance, error) {
+func (a *StateAPI) StateMarketBalance(ctx context.Context, addr address.Address, tsk types.TipSetKey) (actors.StorageParticipantBalance, error) {
+	ts, err := a.getTipSetFromKey(tsk)
+	if err != nil {
+		return actors.StorageParticipantBalance{}, xerrors.Errorf("loading tipset %s: %w", tsk, err)
+	}
 	return a.StateManager.MarketBalance(ctx, addr, ts)
 }
 

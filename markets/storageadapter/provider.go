@@ -198,7 +198,7 @@ func (n *ProviderNodeAdapter) AddFunds(ctx context.Context, addr address.Address
 }
 
 func (n *ProviderNodeAdapter) GetBalance(ctx context.Context, addr address.Address) (storagemarket.Balance, error) {
-	bal, err := n.StateMarketBalance(ctx, addr, nil)
+	bal, err := n.StateMarketBalance(ctx, addr, types.EmptyTSK)
 	if err != nil {
 		return storagemarket.Balance{}, err
 	}

@@ -114,7 +114,7 @@ type FullNode interface {
 	StateWaitMsg(context.Context, cid.Cid) (*MsgWait, error)
 	StateListMiners(context.Context, types.TipSetKey) ([]address.Address, error)
 	StateListActors(context.Context, types.TipSetKey) ([]address.Address, error)
-	StateMarketBalance(context.Context, address.Address, *types.TipSet) (actors.StorageParticipantBalance, error)
+	StateMarketBalance(context.Context, address.Address, types.TipSetKey) (actors.StorageParticipantBalance, error)
 	StateMarketParticipants(context.Context, *types.TipSet) (map[string]actors.StorageParticipantBalance, error)
 	StateMarketDeals(context.Context, *types.TipSet) (map[string]actors.OnChainDeal, error)
 	StateMarketStorageDeal(context.Context, uint64, *types.TipSet) (*actors.OnChainDeal, error)

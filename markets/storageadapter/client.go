@@ -143,7 +143,7 @@ func (n *ClientNodeAdapter) EnsureFunds(ctx context.Context, addr address.Addres
 }
 
 func (n *ClientNodeAdapter) GetBalance(ctx context.Context, addr address.Address) (storagemarket.Balance, error) {
-	bal, err := n.StateMarketBalance(ctx, addr, nil)
+	bal, err := n.StateMarketBalance(ctx, addr, types.EmptyTSK)
 	if err != nil {
 		return storagemarket.Balance{}, err
 	}
