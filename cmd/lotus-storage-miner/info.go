@@ -88,7 +88,7 @@ var infoCmd = &cli.Command{
 		fmt.Printf("\tCommit: %d\n", wstat.CommitWait)
 		fmt.Printf("\tUnseal: %d\n", wstat.UnsealWait)
 
-		eps, err := api.StateMinerElectionPeriodStart(ctx, maddr, nil)
+		eps, err := api.StateMinerElectionPeriodStart(ctx, maddr, types.EmptyTSK)
 		if err != nil {
 			return err
 		}

@@ -97,7 +97,11 @@ func (a *StateAPI) StateMinerPeerID(ctx context.Context, m address.Address, tsk 
 	return stmgr.GetMinerPeerID(ctx, a.StateManager, ts, m)
 }
 
-func (a *StateAPI) StateMinerElectionPeriodStart(ctx context.Context, actor address.Address, ts *types.TipSet) (uint64, error) {
+func (a *StateAPI) StateMinerElectionPeriodStart(ctx context.Context, actor address.Address, tsk types.TipSetKey) (uint64, error) {
+	ts, err := a.getTipSetFromKey(tsk)
+	if err != nil {
+		return 0, xerrors.Errorf("loading tipset %s: %w", tsk, err)
+	}
 	return stmgr.GetMinerElectionPeriodStart(ctx, a.StateManager, ts, actor)
 }
 

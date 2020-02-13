@@ -107,7 +107,7 @@ type FullNode interface {
 	StateMinerPower(context.Context, address.Address, types.TipSetKey) (MinerPower, error)
 	StateMinerWorker(context.Context, address.Address, types.TipSetKey) (address.Address, error)
 	StateMinerPeerID(ctx context.Context, m address.Address, tsk types.TipSetKey) (peer.ID, error)
-	StateMinerElectionPeriodStart(ctx context.Context, actor address.Address, ts *types.TipSet) (uint64, error)
+	StateMinerElectionPeriodStart(ctx context.Context, actor address.Address, tsk types.TipSetKey) (uint64, error)
 	StateMinerSectorSize(context.Context, address.Address, *types.TipSet) (uint64, error)
 	StateMinerFaults(context.Context, address.Address, *types.TipSet) ([]uint64, error)
 	StatePledgeCollateral(context.Context, *types.TipSet) (types.BigInt, error)
