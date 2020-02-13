@@ -115,7 +115,7 @@ type FullNodeStruct struct {
 		StateMarketStorageDeal        func(context.Context, uint64, types.TipSetKey) (*actors.OnChainDeal, error)                         `perm:"read"`
 		StateLookupID                 func(ctx context.Context, addr address.Address, tsk types.TipSetKey) (address.Address, error)        `perm:"read"`
 		StateChangedActors            func(context.Context, cid.Cid, cid.Cid) (map[string]types.Actor, error)                           `perm:"read"`
-		StateGetReceipt               func(context.Context, cid.Cid, *types.TipSet) (*types.MessageReceipt, error)                      `perm:"read"`
+		StateGetReceipt               func(context.Context, cid.Cid, types.TipSetKey) (*types.MessageReceipt, error)                      `perm:"read"`
 		StateMinerSectorCount         func(context.Context, address.Address, *types.TipSet) (api.MinerSectors, error)                   `perm:"read"`
 		StateListMessages             func(ctx context.Context, match *types.Message, tsk types.TipSetKey, toht uint64) ([]cid.Cid, error) `perm:"read"`
 		StateCompute                  func(context.Context, uint64, []*types.Message, *types.TipSet) (cid.Cid, error)                   `perm:"read"`
@@ -477,8 +477,8 @@ func (c *FullNodeStruct) StateChangedActors(ctx context.Context, olnstate cid.Ci
 	return c.Internal.StateChangedActors(ctx, olnstate, newstate)
 }
 
-func (c *FullNodeStruct) StateGetReceipt(ctx context.Context, msg cid.Cid, ts *types.TipSet) (*types.MessageReceipt, error) {
-	return c.Internal.StateGetReceipt(ctx, msg, ts)
+func (c *FullNodeStruct) StateGetReceipt(ctx context.Context, msg cid.Cid, tsk types.TipSetKey) (*types.MessageReceipt, error) {
+	return c.Internal.StateGetReceipt(ctx, msg, tsk)
 }
 
 func (c *FullNodeStruct) StateListMessages(ctx context.Context, match *types.Message, tsk types.TipSetKey, toht uint64) ([]cid.Cid, error) {

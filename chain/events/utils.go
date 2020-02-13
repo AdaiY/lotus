@@ -23,7 +23,7 @@ func (e *calledEvents) CheckMsg(ctx context.Context, smsg store.ChainMsg, hnd Ca
 			return false, true, nil
 		}
 
-		rec, err := e.cs.StateGetReceipt(ctx, smsg.VMMessage().Cid(), ts)
+		rec, err := e.cs.StateGetReceipt(ctx, smsg.VMMessage().Cid(), ts.Key())
 		if err != nil {
 			return false, true, xerrors.Errorf("getting receipt in CheckMsg: %w", err)
 		}

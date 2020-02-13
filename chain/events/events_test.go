@@ -40,7 +40,7 @@ type fakeCS struct {
 	sub func(rev, app []*types.TipSet)
 }
 
-func (fcs *fakeCS) StateGetReceipt(context.Context, cid.Cid, *types.TipSet) (*types.MessageReceipt, error) {
+func (fcs *fakeCS) StateGetReceipt(context.Context, cid.Cid, types.TipSetKey) (*types.MessageReceipt, error) {
 	return nil, nil
 }
 

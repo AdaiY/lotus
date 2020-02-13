@@ -48,7 +48,7 @@ type storageMinerApi interface {
 	StateMinerSectorSize(context.Context, address.Address, types.TipSetKey) (uint64, error)
 	StateWaitMsg(context.Context, cid.Cid) (*api.MsgWait, error) // TODO: removeme eventually
 	StateGetActor(ctx context.Context, actor address.Address, tsk types.TipSetKey) (*types.Actor, error)
-	StateGetReceipt(context.Context, cid.Cid, *types.TipSet) (*types.MessageReceipt, error)
+	StateGetReceipt(context.Context, cid.Cid, types.TipSetKey) (*types.MessageReceipt, error)
 	StateMarketStorageDeal(context.Context, uint64, types.TipSetKey) (*actors.OnChainDeal, error)
 	StateMinerFaults(context.Context, address.Address, types.TipSetKey) ([]uint64, error)
 
