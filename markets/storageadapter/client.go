@@ -60,7 +60,7 @@ func (n *ClientNodeAdapter) ListStorageProviders(ctx context.Context) ([]*storag
 		return nil, err
 	}
 
-	addresses, err := n.StateListMiners(ctx, ts)
+	addresses, err := n.StateListMiners(ctx, ts.Key())
 	if err != nil {
 		return nil, err
 	}

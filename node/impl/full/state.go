@@ -280,7 +280,11 @@ func (a *StateAPI) StateGetReceipt(ctx context.Context, msg cid.Cid, ts *types.T
 	return a.StateManager.GetReceipt(ctx, msg, ts)
 }
 
-func (a *StateAPI) StateListMiners(ctx context.Context, ts *types.TipSet) ([]address.Address, error) {
+func (a *StateAPI) StateListMiners(ctx context.Context, tsk types.TipSetKey) ([]address.Address, error) {
+	ts, err := a.getTipSetFromKey(tsk)
+	if err != nil {
+		return nil, xerrors.Errorf("loading tipset %s: %w", tsk, err)
+	}
 	return stmgr.ListMinerActors(ctx, a.StateManager, ts)
 }
 

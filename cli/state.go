@@ -362,7 +362,7 @@ var stateListMinersCmd = &cli.Command{
 			return err
 		}
 
-		miners, err := api.StateListMiners(ctx, ts)
+		miners, err := api.StateListMiners(ctx, ts.Key())
 		if err != nil {
 			return err
 		}

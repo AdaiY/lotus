@@ -167,7 +167,7 @@ func RecordTipsetStatePoints(ctx context.Context, api api.FullNode, pl *PointLis
 	p = NewPoint("chain.power", power.TotalPower.Int64())
 	pl.AddPoint(p)
 
-	miners, err := api.StateListMiners(ctx, tipset)
+	miners, err := api.StateListMiners(ctx, tipset.Key())
 	for _, miner := range miners {
 		power, err := api.StateMinerPower(ctx, miner, tipset.Key())
 		if err != nil {
