@@ -122,7 +122,7 @@ type FullNode interface {
 	StateChangedActors(context.Context, cid.Cid, cid.Cid) (map[string]types.Actor, error)
 	StateGetReceipt(context.Context, cid.Cid, types.TipSetKey) (*types.MessageReceipt, error)
 	StateMinerSectorCount(context.Context, address.Address, types.TipSetKey) (MinerSectors, error)
-	StateCompute(context.Context, uint64, []*types.Message, *types.TipSet) (cid.Cid, error)
+	StateCompute(context.Context, uint64, []*types.Message, types.TipSetKey) (cid.Cid, error)
 
 	MsigGetAvailableBalance(context.Context, address.Address, *types.TipSet) (types.BigInt, error)
 

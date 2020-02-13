@@ -701,7 +701,7 @@ var stateComputeStateCmd = &cli.Command{
 			}
 		}
 
-		nstate, err := api.StateCompute(ctx, h, msgs, ts)
+		nstate, err := api.StateCompute(ctx, h, msgs, ts.Key())
 		if err != nil {
 			return err
 		}

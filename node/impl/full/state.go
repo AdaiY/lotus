@@ -499,7 +499,11 @@ func (a *StateAPI) StateListMessages(ctx context.Context, match *types.Message, 
 	return out, nil
 }
 
-func (a *StateAPI) StateCompute(ctx context.Context, height uint64, msgs []*types.Message, ts *types.TipSet) (cid.Cid, error) {
+func (a *StateAPI) StateCompute(ctx context.Context, height uint64, msgs []*types.Message, tsk types.TipSetKey) (cid.Cid, error) {
+	ts, err := a.getTipSetFromKey(tsk)
+	if err != nil {
+		return cid.Undef, xerrors.Errorf("loading tipset %s: %w", tsk, err)
+	}
 	return stmgr.ComputeState(ctx, a.StateManager, height, msgs, ts)
 }
 

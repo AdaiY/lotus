@@ -118,7 +118,7 @@ type FullNodeStruct struct {
 		StateGetReceipt               func(context.Context, cid.Cid, types.TipSetKey) (*types.MessageReceipt, error)                      `perm:"read"`
 		StateMinerSectorCount         func(context.Context, address.Address, types.TipSetKey) (api.MinerSectors, error)                   `perm:"read"`
 		StateListMessages             func(ctx context.Context, match *types.Message, tsk types.TipSetKey, toht uint64) ([]cid.Cid, error) `perm:"read"`
-		StateCompute                  func(context.Context, uint64, []*types.Message, *types.TipSet) (cid.Cid, error)                   `perm:"read"`
+		StateCompute                  func(context.Context, uint64, []*types.Message, types.TipSetKey) (cid.Cid, error)                   `perm:"read"`
 
 		MsigGetAvailableBalance func(context.Context, address.Address, *types.TipSet) (types.BigInt, error) `perm:"read"`
 
@@ -485,8 +485,8 @@ func (c *FullNodeStruct) StateListMessages(ctx context.Context, match *types.Mes
 	return c.Internal.StateListMessages(ctx, match, tsk, toht)
 }
 
-func (c *FullNodeStruct) StateCompute(ctx context.Context, height uint64, msgs []*types.Message, ts *types.TipSet) (cid.Cid, error) {
-	return c.Internal.StateCompute(ctx, height, msgs, ts)
+func (c *FullNodeStruct) StateCompute(ctx context.Context, height uint64, msgs []*types.Message, tsk types.TipSetKey) (cid.Cid, error) {
+	return c.Internal.StateCompute(ctx, height, msgs, tsk)
 }
 
 func (c *FullNodeStruct) MsigGetAvailableBalance(ctx context.Context, a address.Address, ts *types.TipSet) (types.BigInt, error) {
