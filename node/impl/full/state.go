@@ -121,7 +121,12 @@ func (a *StateAPI) StateMinerFaults(ctx context.Context, addr address.Address, t
 	return stmgr.GetMinerFaults(ctx, a.StateManager, ts, addr)
 }
 
-func (a *StateAPI) StatePledgeCollateral(ctx context.Context, ts *types.TipSet) (types.BigInt, error) {
+func (a *StateAPI) StatePledgeCollateral(ctx context.Context, tsk types.TipSetKey) (types.BigInt, error) {
+	ts, err := a.getTipSetFromKey(tsk)
+	if err != nil {
+		return types.EmptyInt, xerrors.Errorf("loading tipset %s: %w", tsk, err)
+	}
+
 	param, err := actors.SerializeParams(&actors.PledgeCollateralParams{Size: types.NewInt(0)})
 	if err != nil {
 		return types.NewInt(0), err

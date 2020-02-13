@@ -559,7 +559,7 @@ func createStorageMiner(ctx context.Context, api lapi.FullNode, peerid peer.ID, 
 		return address.Undef, err
 	}
 
-	collateral, err := api.StatePledgeCollateral(ctx, nil)
+	collateral, err := api.StatePledgeCollateral(ctx, types.EmptyTSK)
 	if err != nil {
 		return address.Undef, err
 	}

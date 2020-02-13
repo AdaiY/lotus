@@ -294,7 +294,7 @@ var statePledgeCollateralCmd = &cli.Command{
 			return err
 		}
 
-		coll, err := api.StatePledgeCollateral(ctx, ts)
+		coll, err := api.StatePledgeCollateral(ctx, ts.Key())
 		if err != nil {
 			return err
 		}

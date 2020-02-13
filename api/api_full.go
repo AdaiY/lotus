@@ -110,7 +110,7 @@ type FullNode interface {
 	StateMinerElectionPeriodStart(ctx context.Context, actor address.Address, tsk types.TipSetKey) (uint64, error)
 	StateMinerSectorSize(context.Context, address.Address, types.TipSetKey) (uint64, error)
 	StateMinerFaults(context.Context, address.Address, types.TipSetKey) ([]uint64, error)
-	StatePledgeCollateral(context.Context, *types.TipSet) (types.BigInt, error)
+	StatePledgeCollateral(context.Context, types.TipSetKey) (types.BigInt, error)
 	StateWaitMsg(context.Context, cid.Cid) (*MsgWait, error)
 	StateListMiners(context.Context, *types.TipSet) ([]address.Address, error)
 	StateListActors(context.Context, *types.TipSet) ([]address.Address, error)

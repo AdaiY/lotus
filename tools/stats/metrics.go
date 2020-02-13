@@ -137,7 +137,7 @@ func RecordTipsetPoints(ctx context.Context, api api.FullNode, pl *PointList, ti
 }
 
 func RecordTipsetStatePoints(ctx context.Context, api api.FullNode, pl *PointList, tipset *types.TipSet) error {
-	pc, err := api.StatePledgeCollateral(ctx, tipset)
+	pc, err := api.StatePledgeCollateral(ctx, tipset.Key())
 	if err != nil {
 		return err
 	}
