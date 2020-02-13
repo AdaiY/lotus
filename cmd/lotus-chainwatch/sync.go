@@ -268,7 +268,7 @@ func syncHead(ctx context.Context, api api.FullNode, st *storage, ts *types.TipS
 		par(50, kvmaparr(miners), func(it func() (minerKey, *minerInfo)) {
 			k, info := it()
 
-			sszs, err := api.StateMinerSectorCount(ctx, k.addr, nil)
+			sszs, err := api.StateMinerSectorCount(ctx, k.addr, types.EmptyTSK)
 			if err != nil {
 				log.Error(err)
 				return

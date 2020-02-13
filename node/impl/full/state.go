@@ -438,7 +438,11 @@ func (a *StateAPI) StateChangedActors(ctx context.Context, old cid.Cid, new cid.
 	return out, nil
 }
 
-func (a *StateAPI) StateMinerSectorCount(ctx context.Context, addr address.Address, ts *types.TipSet) (api.MinerSectors, error) {
+func (a *StateAPI) StateMinerSectorCount(ctx context.Context, addr address.Address, tsk types.TipSetKey) (api.MinerSectors, error) {
+	ts, err := a.getTipSetFromKey(tsk)
+	if err != nil {
+		return api.MinerSectors{}, xerrors.Errorf("loading tipset %s: %w", tsk, err)
+	}
 	return stmgr.SectorSetSizes(ctx, a.StateManager, addr, ts)
 }
 
