@@ -57,7 +57,7 @@ var infoCmd = &cli.Command{
 		if err != nil {
 			return err
 		}
-		faults, err := api.StateMinerFaults(ctx, maddr, nil)
+		faults, err := api.StateMinerFaults(ctx, maddr, types.EmptyTSK)
 		if err != nil {
 			return err
 		}

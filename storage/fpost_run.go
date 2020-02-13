@@ -92,7 +92,7 @@ func (s *FPoStScheduler) checkFaults(ctx context.Context, ssi sectorbuilder.Sort
 	declaredFaults := map[uint64]struct{}{}
 
 	{
-		chainFaults, err := s.api.StateMinerFaults(ctx, s.actor, nil)
+		chainFaults, err := s.api.StateMinerFaults(ctx, s.actor, types.EmptyTSK)
 		if err != nil {
 			return nil, xerrors.Errorf("checking on-chain faults: %w", err)
 		}
