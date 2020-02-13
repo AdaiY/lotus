@@ -90,7 +90,7 @@ func (n *ClientNodeAdapter) ListStorageProviders(ctx context.Context) ([]*storag
 }
 
 func (n *ClientNodeAdapter) ListClientDeals(ctx context.Context, addr address.Address) ([]storagemarket.StorageDeal, error) {
-	allDeals, err := n.StateMarketDeals(ctx, nil)
+	allDeals, err := n.StateMarketDeals(ctx, types.EmptyTSK)
 	if err != nil {
 		return nil, err
 	}

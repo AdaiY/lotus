@@ -324,7 +324,7 @@ func findMarketDealID(ctx context.Context, api lapi.FullNode, deal actors.Storag
 	// TODO: find a better way
 	//  (this is only used by genesis miners)
 
-	deals, err := api.StateMarketDeals(ctx, nil)
+	deals, err := api.StateMarketDeals(ctx, types.EmptyTSK)
 	if err != nil {
 		return 0, xerrors.Errorf("getting market deals: %w", err)
 	}

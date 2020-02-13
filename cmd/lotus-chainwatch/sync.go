@@ -357,7 +357,7 @@ func syncHead(ctx context.Context, api api.FullNode, st *storage, ts *types.TipS
 	log.Infof("Get deals")
 
 	// TODO: incremental, gather expired
-	deals, err := api.StateMarketDeals(ctx, ts)
+	deals, err := api.StateMarketDeals(ctx, ts.Key())
 	if err != nil {
 		log.Error(err)
 		return

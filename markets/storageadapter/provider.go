@@ -132,7 +132,7 @@ func (n *ProviderNodeAdapter) OnDealComplete(ctx context.Context, deal storagema
 }
 
 func (n *ProviderNodeAdapter) ListProviderDeals(ctx context.Context, addr address.Address) ([]storagemarket.StorageDeal, error) {
-	allDeals, err := n.StateMarketDeals(ctx, nil)
+	allDeals, err := n.StateMarketDeals(ctx, types.EmptyTSK)
 	if err != nil {
 		return nil, err
 	}
