@@ -112,7 +112,7 @@ type FullNodeStruct struct {
 		StateMarketBalance            func(context.Context, address.Address, types.TipSetKey) (actors.StorageParticipantBalance, error)   `perm:"read"`
 		StateMarketParticipants       func(context.Context, types.TipSetKey) (map[string]actors.StorageParticipantBalance, error)         `perm:"read"`
 		StateMarketDeals              func(context.Context, types.TipSetKey) (map[string]actors.OnChainDeal, error)                       `perm:"read"`
-		StateMarketStorageDeal        func(context.Context, uint64, *types.TipSet) (*actors.OnChainDeal, error)                         `perm:"read"`
+		StateMarketStorageDeal        func(context.Context, uint64, types.TipSetKey) (*actors.OnChainDeal, error)                         `perm:"read"`
 		StateLookupID                 func(ctx context.Context, addr address.Address, ts *types.TipSet) (address.Address, error)        `perm:"read"`
 		StateChangedActors            func(context.Context, cid.Cid, cid.Cid) (map[string]types.Actor, error)                           `perm:"read"`
 		StateGetReceipt               func(context.Context, cid.Cid, *types.TipSet) (*types.MessageReceipt, error)                      `perm:"read"`
@@ -465,8 +465,8 @@ func (c *FullNodeStruct) StateMarketDeals(ctx context.Context, tsk types.TipSetK
 	return c.Internal.StateMarketDeals(ctx, tsk)
 }
 
-func (c *FullNodeStruct) StateMarketStorageDeal(ctx context.Context, dealid uint64, ts *types.TipSet) (*actors.OnChainDeal, error) {
-	return c.Internal.StateMarketStorageDeal(ctx, dealid, ts)
+func (c *FullNodeStruct) StateMarketStorageDeal(ctx context.Context, dealid uint64, tsk types.TipSetKey) (*actors.OnChainDeal, error) {
+	return c.Internal.StateMarketStorageDeal(ctx, dealid, tsk)
 }
 
 func (c *FullNodeStruct) StateLookupID(ctx context.Context, addr address.Address, ts *types.TipSet) (address.Address, error) {

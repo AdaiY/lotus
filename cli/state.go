@@ -330,7 +330,7 @@ var stateGetDealSetCmd = &cli.Command{
 			return err
 		}
 
-		deal, err := api.StateMarketStorageDeal(ctx, dealid, ts)
+		deal, err := api.StateMarketStorageDeal(ctx, dealid, ts.Key())
 		if err != nil {
 			return err
 		}

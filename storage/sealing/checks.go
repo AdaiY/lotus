@@ -34,7 +34,7 @@ func checkPieces(ctx context.Context, si SectorInfo, api sealingApi) error {
 	}
 
 	for i, piece := range si.Pieces {
-		deal, err := api.StateMarketStorageDeal(ctx, piece.DealID, nil)
+		deal, err := api.StateMarketStorageDeal(ctx, piece.DealID, types.EmptyTSK)
 		if err != nil {
 			return &ErrApi{xerrors.Errorf("getting deal %d for piece %d: %w", piece.DealID, i, err)}
 		}

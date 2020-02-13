@@ -371,7 +371,11 @@ func (a *StateAPI) StateMarketDeals(ctx context.Context, tsk types.TipSetKey) (m
 	return out, nil
 }
 
-func (a *StateAPI) StateMarketStorageDeal(ctx context.Context, dealId uint64, ts *types.TipSet) (*actors.OnChainDeal, error) {
+func (a *StateAPI) StateMarketStorageDeal(ctx context.Context, dealId uint64, tsk types.TipSetKey) (*actors.OnChainDeal, error) {
+	ts, err := a.getTipSetFromKey(tsk)
+	if err != nil {
+		return nil, xerrors.Errorf("loading tipset %s: %w", tsk, err)
+	}
 	return stmgr.GetStorageDeal(ctx, a.StateManager, dealId, ts)
 }
 
