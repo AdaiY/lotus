@@ -38,7 +38,7 @@ var infoCmd = &cli.Command{
 		fmt.Printf("Miner: %s\n", maddr)
 
 		// Sector size
-		sizeByte, err := api.StateMinerSectorSize(ctx, maddr, nil)
+		sizeByte, err := api.StateMinerSectorSize(ctx, maddr, types.EmptyTSK)
 		if err != nil {
 			return err
 		}

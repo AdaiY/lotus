@@ -423,7 +423,7 @@ type MiningCheckAPI interface {
 
 	StateMinerWorker(context.Context, address.Address, types.TipSetKey) (address.Address, error)
 
-	StateMinerSectorSize(context.Context, address.Address, *types.TipSet) (uint64, error)
+	StateMinerSectorSize(context.Context, address.Address, types.TipSetKey) (uint64, error)
 
 	StateMinerProvingSet(context.Context, address.Address, types.TipSetKey) ([]*api.ChainSectorInfo, error)
 
@@ -463,7 +463,11 @@ func (mca mca) StateMinerWorker(ctx context.Context, maddr address.Address, tsk 
 	return stmgr.GetMinerWorkerRaw(ctx, mca.sm, ts.ParentState(), maddr)
 }
 
-func (mca mca) StateMinerSectorSize(ctx context.Context, maddr address.Address, ts *types.TipSet) (uint64, error) {
+func (mca mca) StateMinerSectorSize(ctx context.Context, maddr address.Address, tsk types.TipSetKey) (uint64, error) {
+	ts, err := mca.sm.ChainStore().LoadTipSet(tsk)
+	if err != nil {
+		return 0, xerrors.Errorf("loading tipset %s: %w", tsk, err)
+	}
 	return stmgr.GetMinerSectorSize(ctx, mca.sm, ts, maddr)
 }
 
@@ -555,7 +559,7 @@ func IsRoundWinner(ctx context.Context, ts *types.TipSet, round int64, miner add
 		return nil, xerrors.Errorf("failed to check power: %w", err)
 	}
 
-	ssize, err := a.StateMinerSectorSize(ctx, miner, ts)
+	ssize, err := a.StateMinerSectorSize(ctx, miner, ts.Key())
 	if err != nil {
 		return nil, xerrors.Errorf("failed to look up miners sector size: %w", err)
 	}

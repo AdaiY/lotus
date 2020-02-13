@@ -99,7 +99,7 @@ type FullNodeStruct struct {
 		StateMinerWorker              func(context.Context, address.Address, types.TipSetKey) (address.Address, error)                    `perm:"read"`
 		StateMinerPeerID              func(ctx context.Context, m address.Address, tsk types.TipSetKey) (peer.ID, error)                   `perm:"read"`
 		StateMinerElectionPeriodStart func(ctx context.Context, actor address.Address, tsk types.TipSetKey) (uint64, error)                `perm:"read"`
-		StateMinerSectorSize          func(context.Context, address.Address, *types.TipSet) (uint64, error)                             `perm:"read"`
+		StateMinerSectorSize          func(context.Context, address.Address, types.TipSetKey) (uint64, error)                             `perm:"read"`
 		StateMinerFaults              func(context.Context, address.Address, *types.TipSet) ([]uint64, error)                           `perm:"read"`
 		StateCall                     func(context.Context, *types.Message, types.TipSetKey) (*api.MethodCall, error)                     `perm:"read"`
 		StateReplay                   func(context.Context, types.TipSetKey, cid.Cid) (*api.ReplayResults, error)                         `perm:"read"`
@@ -414,8 +414,8 @@ func (c *FullNodeStruct) StateMinerElectionPeriodStart(ctx context.Context, acto
 	return c.Internal.StateMinerElectionPeriodStart(ctx, actor, tsk)
 }
 
-func (c *FullNodeStruct) StateMinerSectorSize(ctx context.Context, actor address.Address, ts *types.TipSet) (uint64, error) {
-	return c.Internal.StateMinerSectorSize(ctx, actor, ts)
+func (c *FullNodeStruct) StateMinerSectorSize(ctx context.Context, actor address.Address, tsk types.TipSetKey) (uint64, error) {
+	return c.Internal.StateMinerSectorSize(ctx, actor, tsk)
 }
 
 func (c *FullNodeStruct) StateMinerFaults(ctx context.Context, actor address.Address, ts *types.TipSet) ([]uint64, error) {

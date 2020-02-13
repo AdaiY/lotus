@@ -63,7 +63,7 @@ func checkSeal(ctx context.Context, maddr address.Address, si SectorInfo, api se
 		return &ErrApi{xerrors.Errorf("getting chain head: %w", err)}
 	}
 
-	ssize, err := api.StateMinerSectorSize(ctx, maddr, head)
+	ssize, err := api.StateMinerSectorSize(ctx, maddr, head.Key())
 	if err != nil {
 		return &ErrApi{err}
 	}

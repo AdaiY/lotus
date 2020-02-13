@@ -71,7 +71,7 @@ func SectorBuilderConfig(storage []fs.PathConfig, threads uint, noprecommit, noc
 			return nil, err
 		}
 
-		ssize, err := api.StateMinerSectorSize(context.TODO(), minerAddr, nil)
+		ssize, err := api.StateMinerSectorSize(context.TODO(), minerAddr, types.EmptyTSK)
 		if err != nil {
 			return nil, err
 		}

@@ -73,7 +73,7 @@ func (n *ClientNodeAdapter) ListStorageProviders(ctx context.Context) ([]*storag
 			return nil, err
 		}
 
-		sectorSize, err := n.StateMinerSectorSize(ctx, addr, ts)
+		sectorSize, err := n.StateMinerSectorSize(ctx, addr, ts.Key())
 		if err != nil {
 			return nil, err
 		}
