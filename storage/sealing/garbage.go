@@ -272,14 +272,14 @@ func (m *Sealing) readPPIJson(sectorID uint64, ctx context.Context, size uint64,
 
 func saveJson(data []byte, path string) error {
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0644)
+	if err != nil {
+		return err
+	}
 	defer func() {
 		if err := file.Close(); err != nil {
 			log.Warnf("ppi json file closed failed: %w", err)
 		}
 	}()
-	if err != nil {
-		return err
-	}
 
 	_, err = file.Write(data)
 	if err != nil {
