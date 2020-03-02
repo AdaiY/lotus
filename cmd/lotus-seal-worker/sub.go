@@ -2,7 +2,12 @@ package main
 
 import (
 	"context"
+	"encoding/json"
+	"github.com/filecoin-project/lotus/storage/sealing"
 	"net/http"
+	"os"
+	"os/exec"
+	"strings"
 
 	"github.com/filecoin-project/go-sectorbuilder"
 	"golang.org/x/xerrors"
@@ -74,6 +79,11 @@ func (w *worker) processTask(ctx context.Context, task sectorbuilder.WorkerTask)
 	//if err := w.fetchSector(task.SectorID, task.Type); err != nil {
 	//	return errRes(xerrors.Errorf("fetching sector: %w", err))
 	//}
+	if task.Type == sectorbuilder.WorkerPreCommit {
+		if err := w.fetchStagedSector(); err != nil {
+			return errRes(xerrors.Errorf("fetching staged sector: %w"))
+		}
+	}
 
 	log.Infof("Data fetched, starting computation")
 
@@ -126,4 +136,46 @@ func (w *worker) processTask(ctx context.Context, task sectorbuilder.WorkerTask)
 
 func errRes(err error) sectorbuilder.SealRes {
 	return sectorbuilder.SealRes{Err: err.Error(), GoErr: err}
+}
+
+func (w *worker) fetchStagedSector() error {
+	lotusStoragePath := os.Getenv("HOME") + "/.lotusworker"
+	workerPath, ex := os.LookupEnv("WORKER_PATH")
+	if !ex {
+		workerPath = os.Getenv("HOME") + "/.lotusworker"
+	}
+	CommPFile := workerPath + "/CommP.json"
+
+	file, err := os.Open(CommPFile)
+	if err != nil {
+		return xerrors.Errorf("comP json file os.OpenFile: %w", err)
+	}
+	defer func() {
+		if err := file.Close(); err != nil {
+			log.Warnf("comP json file closed failed: %w", err)
+		}
+	}()
+	data := make([]byte, 2000)
+	n, err := file.Read(data)
+	if err != nil {
+		return xerrors.Errorf("read commP json: %w", err)
+	}
+	var sp sealing.StagedCommP
+	if err := json.Unmarshal(data[:n], &sp); err != nil {
+		return xerrors.Errorf("unmarshal commP json: %w", err)
+	}
+
+	_, err = os.Stat(sp.Path)
+	if err != nil {
+		if !os.IsNotExist(err) {
+			return xerrors.Errorf("sector file stat: %w", err)
+		}
+		cmd := exec.Command("cp", "-rf", sp.Path, lotusStoragePath+sp.Path[strings.LastIndex(sp.Path, "/"):])
+		log.Infof("copping staged sector")
+		if err := cmd.Run(); err != nil {
+			return xerrors.Errorf("copy staged sector: %w", err)
+		}
+	}
+
+	return nil
 }

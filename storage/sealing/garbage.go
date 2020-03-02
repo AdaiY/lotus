@@ -105,7 +105,7 @@ func (m *Sealing) pledgeSector(ctx context.Context, sectorID uint64, existingPie
 	out := make([]Piece, len(sizes))
 	for i, size := range sizes {
 		//ppi, err := m.sb.AddPiece(ctx, size, sectorID, m.pledgeReader(size, uint64(1)), existingPieceSizes)
-		ppi, err := m.readPPIJson(sectorID, ctx, size, existingPieceSizes)
+		ppi, err := m.readPPIJson(ctx, sectorID, size, existingPieceSizes)
 		if err != nil {
 			return nil, xerrors.Errorf("add piece: %w", err)
 		}
@@ -150,7 +150,7 @@ func (m *Sealing) PledgeSector() error {
 	return nil
 }
 
-type stagedCommP struct {
+type StagedCommP struct {
 	CommP [sectorbuilder.CommLen]byte
 	Path  string
 }
@@ -174,7 +174,7 @@ func (m *Sealing) readCommPJson(sectorID uint64, size uint64) ([sectorbuilder.Co
 			return [sectorbuilder.CommLen]byte{}, err
 		}
 		stagedPath := fs.SectorPath(filepath.Join(lotusStoragePath, fs.SectorName(m.maddr, sectorID)))
-		scf := stagedCommP{
+		scf := StagedCommP{
 			CommP: commP,
 			Path:  string(stagedPath),
 		}
@@ -201,7 +201,7 @@ func (m *Sealing) readCommPJson(sectorID uint64, size uint64) ([sectorbuilder.Co
 	if err != nil {
 		return [sectorbuilder.CommLen]byte{}, xerrors.Errorf("read commP json: %w", err)
 	}
-	var sp stagedCommP
+	var sp StagedCommP
 	if err := json.Unmarshal(data[:n], &sp); err != nil {
 		return [sectorbuilder.CommLen]byte{}, xerrors.Errorf("unmarshal commP json: %w", err)
 	}
@@ -213,7 +213,7 @@ func (m *Sealing) readCommPJson(sectorID uint64, size uint64) ([sectorbuilder.Co
 	return sp.CommP, nil
 }
 
-func (m *Sealing) readPPIJson(sectorID uint64, ctx context.Context, size uint64, existingPieceSizes []uint64) (sectorbuilder.PublicPieceInfo, error) {
+func (m *Sealing) readPPIJson(ctx context.Context, sectorID uint64, size uint64, existingPieceSizes []uint64) (sectorbuilder.PublicPieceInfo, error) {
 	lotusStoragePath, ex := os.LookupEnv("LOTUS_STORAGE_PATH")
 	if !ex {
 		lotusStoragePath = os.Getenv("HOME") + "/.lotusstorage"
@@ -240,12 +240,13 @@ func (m *Sealing) readPPIJson(sectorID uint64, ctx context.Context, size uint64,
 			return sectorbuilder.PublicPieceInfo{}, xerrors.Errorf("save ppi json: %w", err)
 		}
 
-		stagedPathOld := fs.SectorPath(filepath.Join(lotusStoragePath, string(fs.DataStaging), fs.SectorName(m.maddr, sectorID)))
+		stagedPathLast := fs.SectorPath(filepath.Join(lotusStoragePath, string(fs.DataStaging), fs.SectorName(m.maddr, sectorID)))
 		stagedPath := fs.SectorPath(filepath.Join(lotusStoragePath, fs.SectorName(m.maddr, sectorID)))
-		if err := os.Rename(string(stagedPathOld), string(stagedPath)); err != nil {
+		if err := os.Rename(string(stagedPathLast), string(stagedPath)); err != nil {
 			return sectorbuilder.PublicPieceInfo{}, xerrors.Errorf("move staged sector: %w", err)
 		}
-		if err := os.Symlink(string(stagedPath), string(stagedPathOld)); err != nil {
+		localStagedPath := fs.SectorPath(filepath.Join(os.Getenv("HOME")+"/.lotusstorage", string(fs.DataStaging), fs.SectorName(m.maddr, sectorID)))
+		if err := os.Symlink(string(stagedPath), string(localStagedPath)); err != nil {
 			return sectorbuilder.PublicPieceInfo{}, xerrors.Errorf("create symlink: %w", err)
 		}
 
