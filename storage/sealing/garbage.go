@@ -6,16 +6,16 @@ import (
 	"encoding/json"
 	sectorbuilder "github.com/filecoin-project/go-sectorbuilder"
 	"github.com/filecoin-project/go-sectorbuilder/fs"
+	"github.com/filecoin-project/lotus/chain/actors"
+	"github.com/filecoin-project/lotus/chain/types"
 	"golang.org/x/xerrors"
 	"io"
 	"math"
 	"math/bits"
 	"math/rand"
 	"os"
+	"os/exec"
 	"path/filepath"
-
-	"github.com/filecoin-project/lotus/chain/actors"
-	"github.com/filecoin-project/lotus/chain/types"
 )
 
 func (m *Sealing) pledgeReader(size uint64, parts uint64) io.Reader {
@@ -246,8 +246,13 @@ func (m *Sealing) readPPIJson(ctx context.Context, sectorID uint64, size uint64,
 			return sectorbuilder.PublicPieceInfo{}, xerrors.Errorf("move staged sector: %w", err)
 		}
 		localStagedPath := fs.SectorPath(filepath.Join(os.Getenv("HOME")+"/.lotusstorage", string(fs.DataStaging), fs.SectorName(m.maddr, sectorID)))
-		if err := os.Symlink(string(stagedPath), string(localStagedPath)); err != nil {
-			return sectorbuilder.PublicPieceInfo{}, xerrors.Errorf("create symlink: %w", err)
+		//if err := os.Symlink(string(stagedPath), string(localStagedPath)); err != nil {
+		//	return sectorbuilder.PublicPieceInfo{}, xerrors.Errorf("create symlink: %w", err)
+		//}
+		cmd := exec.Command("cp", "-rf", string(stagedPath), string(localStagedPath))
+		log.Infof("copping staged sector: cp -rf %s %s", string(stagedPath), string(localStagedPath))
+		if err := cmd.Run(); err != nil {
+			return sectorbuilder.PublicPieceInfo{}, xerrors.Errorf("copy staged sector: %w", err)
 		}
 
 		return ppi, err
