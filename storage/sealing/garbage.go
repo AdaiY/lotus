@@ -242,17 +242,17 @@ func (m *Sealing) readPPIJson(ctx context.Context, sectorID uint64, size uint64,
 
 		stagedPathLast := fs.SectorPath(filepath.Join(lotusStoragePath, string(fs.DataStaging), fs.SectorName(m.maddr, sectorID)))
 		stagedPath := fs.SectorPath(filepath.Join(lotusStoragePath, fs.SectorName(m.maddr, sectorID)))
+		localStagedPath := fs.SectorPath(filepath.Join(os.Getenv("HOME")+"/.lotusstorage", string(fs.DataStaging), fs.SectorName(m.maddr, sectorID)))
 		if err := os.Rename(string(stagedPathLast), string(stagedPath)); err != nil {
 			return sectorbuilder.PublicPieceInfo{}, xerrors.Errorf("move staged sector: %w", err)
 		}
-		localStagedPath := fs.SectorPath(filepath.Join(os.Getenv("HOME")+"/.lotusstorage", string(fs.DataStaging), fs.SectorName(m.maddr, sectorID)))
-		//if err := os.Symlink(string(stagedPath), string(localStagedPath)); err != nil {
-		//	return sectorbuilder.PublicPieceInfo{}, xerrors.Errorf("create symlink: %w", err)
-		//}
 		cmd := exec.Command("cp", "-rf", string(stagedPath), string(localStagedPath))
 		log.Infof("copping staged sector: cp -rf %s %s", string(stagedPath), string(localStagedPath))
 		if err := cmd.Run(); err != nil {
 			return sectorbuilder.PublicPieceInfo{}, xerrors.Errorf("copy staged sector: %w", err)
+		}
+		if err := os.Symlink(string(localStagedPath), string(stagedPathLast)); err != nil {
+			return sectorbuilder.PublicPieceInfo{}, xerrors.Errorf("create symlink: %w", err)
 		}
 
 		return ppi, err
