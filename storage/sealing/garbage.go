@@ -206,10 +206,6 @@ func (m *Sealing) readCommPJson(sectorID uint64, size uint64) ([sectorbuilder.Co
 		return [sectorbuilder.CommLen]byte{}, xerrors.Errorf("unmarshal commP json: %w", err)
 	}
 
-	if err := os.Symlink(sp.Path, string(fs.SectorPath(filepath.Join(lotusStoragePath, string(fs.DataStaging), fs.SectorName(m.maddr, sectorID))))); err != nil {
-		return [sectorbuilder.CommLen]byte{}, xerrors.Errorf("create symlink: %w", err)
-	}
-
 	return sp.CommP, nil
 }
 
