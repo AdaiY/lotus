@@ -81,7 +81,7 @@ func (w *worker) processTask(ctx context.Context, task sectorbuilder.WorkerTask)
 	//}
 	if task.Type == sectorbuilder.WorkerPreCommit {
 		if err := w.fetchStagedSector(); err != nil {
-			return errRes(xerrors.Errorf("fetching staged sector: %w"))
+			return errRes(xerrors.Errorf("fetching staged sector: %w", err))
 		}
 	}
 
@@ -171,7 +171,7 @@ func (w *worker) fetchStagedSector() error {
 			return xerrors.Errorf("sector file stat: %w", err)
 		}
 		cmd := exec.Command("cp", "-rf", sp.Path, lotusStoragePath+sp.Path[strings.LastIndex(sp.Path, "/"):])
-		log.Infof("copping staged sector")
+		log.Infof("copping staged sector: cp -rf %s %s", sp.Path, lotusStoragePath+sp.Path[strings.LastIndex(sp.Path, "/"):])
 		if err := cmd.Run(); err != nil {
 			return xerrors.Errorf("copy staged sector: %w", err)
 		}
