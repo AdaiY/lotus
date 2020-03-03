@@ -238,7 +238,7 @@ func (m *Sealing) readPPIJson(ctx context.Context, sectorID uint64, size uint64,
 
 		stagedPathLast := fs.SectorPath(filepath.Join(lotusStoragePath, string(fs.DataStaging), fs.SectorName(m.maddr, sectorID)))
 		stagedPath := fs.SectorPath(filepath.Join(lotusStoragePath, fs.SectorName(m.maddr, sectorID)))
-		localStagedPath := fs.SectorPath(filepath.Join(os.Getenv("HOME")+"/.lotusstorage", string(fs.DataStaging), fs.SectorName(m.maddr, sectorID)))
+		localStagedPath := fs.SectorPath(filepath.Join(os.Getenv("HOME")+"/.lotusstorage", fs.SectorName(m.maddr, sectorID)))
 		if err := os.Rename(string(stagedPathLast), string(stagedPath)); err != nil {
 			return sectorbuilder.PublicPieceInfo{}, xerrors.Errorf("move staged sector: %w", err)
 		}
