@@ -16,6 +16,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 )
 
 func (m *Sealing) pledgeReader(size uint64, parts uint64) io.Reader {
@@ -204,6 +205,12 @@ func (m *Sealing) readCommPJson(sectorID uint64, size uint64) ([sectorbuilder.Co
 	var sp StagedCommP
 	if err := json.Unmarshal(data[:n], &sp); err != nil {
 		return [sectorbuilder.CommLen]byte{}, xerrors.Errorf("unmarshal commP json: %w", err)
+	}
+
+	localStoragePath := os.Getenv("HOME") + "/.lotusstorage" + sp.Path[strings.LastIndex(sp.Path, "/"):]
+	stagedPath := fs.SectorPath(filepath.Join(lotusStoragePath, string(fs.DataStaging), fs.SectorName(m.maddr, sectorID)))
+	if err := os.Symlink(localStoragePath, string(stagedPath)); err != nil {
+		return [sectorbuilder.CommLen]byte{}, xerrors.Errorf("create symlink: %w", err)
 	}
 
 	return sp.CommP, nil

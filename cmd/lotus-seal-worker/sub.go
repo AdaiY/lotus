@@ -139,7 +139,6 @@ func errRes(err error) sectorbuilder.SealRes {
 }
 
 func (w *worker) fetchStagedSector() error {
-	lotusStoragePath := os.Getenv("HOME") + "/.lotusworker"
 	workerPath, ex := os.LookupEnv("WORKER_PATH")
 	if !ex {
 		workerPath = os.Getenv("HOME") + "/.lotusworker"
@@ -165,13 +164,15 @@ func (w *worker) fetchStagedSector() error {
 		return xerrors.Errorf("unmarshal commP json: %w", err)
 	}
 
-	_, err = os.Stat(sp.Path)
+	localStoragePath := os.Getenv("HOME") + "/.lotusstorage" + sp.Path[strings.LastIndex(sp.Path, "/"):]
+
+	_, err = os.Stat(localStoragePath)
 	if err != nil {
 		if !os.IsNotExist(err) {
 			return xerrors.Errorf("sector file stat: %w", err)
 		}
-		cmd := exec.Command("cp", "-rf", sp.Path, lotusStoragePath+sp.Path[strings.LastIndex(sp.Path, "/"):])
-		log.Infof("copping staged sector: cp -rf %s %s", sp.Path, lotusStoragePath+sp.Path[strings.LastIndex(sp.Path, "/"):])
+		cmd := exec.Command("cp", "-rf", sp.Path, localStoragePath)
+		log.Infof("copping staged sector: cp -rf %s %s", sp.Path, localStoragePath)
 		if err := cmd.Run(); err != nil {
 			return xerrors.Errorf("copy staged sector: %w", err)
 		}
