@@ -116,10 +116,10 @@ func (w *worker) processTask(ctx context.Context, task sectorbuilder.WorkerTask)
 		}
 		cachePath := fs.SectorPath(filepath.Join(workerPath, string(fs.DataCache), fs.SectorName(w.sb.Miner, task.SectorID)))
 		localCachePath := fs.SectorPath(filepath.Join(os.Getenv("HOME")+"/.lotusstorage/", string(fs.DataLocalCache), fs.SectorName(w.sb.Miner, task.SectorID)))
-		cmd := exec.Command("mv", "-rf", string(localCachePath), string(cachePath))
-		log.Infof("moving sector cache: cp -rf %s %s", string(localCachePath), string(cachePath))
+		cmd := exec.Command("mv", "-f", string(localCachePath), string(cachePath))
+		log.Infof("moving sector cache: mv -f %s %s", string(localCachePath), string(cachePath))
 		if err := cmd.Run(); err != nil {
-			return errRes(xerrors.Errorf("copy sector cache: %w", err))
+			return errRes(xerrors.Errorf("move sector cache: %w", err))
 		}
 
 	}
