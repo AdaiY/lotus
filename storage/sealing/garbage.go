@@ -210,7 +210,7 @@ func (m *Sealing) readCommPJson(sectorID uint64, size uint64) ([sectorbuilder.Co
 	localStoragePath := os.Getenv("HOME") + "/.lotusstorage" + sp.Path[strings.LastIndex(sp.Path, "/"):]
 	stagedPath := fs.SectorPath(filepath.Join(lotusStoragePath, string(fs.DataStaging), fs.SectorName(m.maddr, sectorID)))
 	if err := os.Symlink(localStoragePath, string(stagedPath)); err != nil {
-		return [sectorbuilder.CommLen]byte{}, xerrors.Errorf("create symlink: %w", err)
+		return [sectorbuilder.CommLen]byte{}, xerrors.Errorf("create staged path symlink: %w", err)
 	}
 
 	return sp.CommP, nil
@@ -243,6 +243,20 @@ func (m *Sealing) readPPIJson(ctx context.Context, sectorID uint64, size uint64,
 			return sectorbuilder.PublicPieceInfo{}, xerrors.Errorf("save ppi json: %w", err)
 		}
 
+		symlinkCachePath := lotusStoragePath + "/" + string(fs.DataLocalCache)
+		localCachePath := os.Getenv("HOME") + "/.lotusstorage/" + string(fs.DataLocalCache)
+		if _, err := os.Stat(localCachePath); err != nil {
+			if !os.IsNotExist(err) {
+				return sectorbuilder.PublicPieceInfo{}, xerrors.Errorf("local cache path os.Stat: %w", err)
+			}
+			if err := os.MkdirAll(localCachePath, 0755); err != nil {
+				return sectorbuilder.PublicPieceInfo{}, xerrors.Errorf("local cache path os.MkdirAll: %w", err)
+			}
+		}
+		if err := os.Symlink(localCachePath, symlinkCachePath); err != nil {
+			return sectorbuilder.PublicPieceInfo{}, xerrors.Errorf("create cache symlink: %w", err)
+		}
+
 		stagedPathLast := fs.SectorPath(filepath.Join(lotusStoragePath, string(fs.DataStaging), fs.SectorName(m.maddr, sectorID)))
 		stagedPath := fs.SectorPath(filepath.Join(lotusStoragePath, fs.SectorName(m.maddr, sectorID)))
 		localStagedPath := fs.SectorPath(filepath.Join(os.Getenv("HOME")+"/.lotusstorage", fs.SectorName(m.maddr, sectorID)))
@@ -255,7 +269,7 @@ func (m *Sealing) readPPIJson(ctx context.Context, sectorID uint64, size uint64,
 			return sectorbuilder.PublicPieceInfo{}, xerrors.Errorf("copy staged sector: %w", err)
 		}
 		if err := os.Symlink(string(localStagedPath), string(stagedPathLast)); err != nil {
-			return sectorbuilder.PublicPieceInfo{}, xerrors.Errorf("create symlink: %w", err)
+			return sectorbuilder.PublicPieceInfo{}, xerrors.Errorf("create staged path symlink: %w", err)
 		}
 
 		return ppi, err
