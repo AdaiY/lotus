@@ -25,7 +25,7 @@ var log = logging.Logger("main")
 
 const (
 	workers   = 1 // TODO: Configurability
-	transfers = 0
+	transfers = 1
 )
 
 func main() {

@@ -243,18 +243,8 @@ func (m *Sealing) readPPIJson(ctx context.Context, sectorID uint64, size uint64,
 			return sectorbuilder.PublicPieceInfo{}, xerrors.Errorf("save ppi json: %w", err)
 		}
 
-		symlinkCachePath := lotusStoragePath + "/" + string(fs.DataLocalCache)
-		localCachePath := os.Getenv("HOME") + "/.lotusstorage/" + string(fs.DataLocalCache)
-		if _, err := os.Stat(localCachePath); err != nil {
-			if !os.IsNotExist(err) {
-				return sectorbuilder.PublicPieceInfo{}, xerrors.Errorf("local cache path os.Stat: %w", err)
-			}
-			if err := os.MkdirAll(localCachePath, 0755); err != nil {
-				return sectorbuilder.PublicPieceInfo{}, xerrors.Errorf("local cache path os.MkdirAll: %w", err)
-			}
-		}
-		if err := os.Symlink(localCachePath, symlinkCachePath); err != nil {
-			return sectorbuilder.PublicPieceInfo{}, xerrors.Errorf("create cache symlink: %w", err)
+		if err := buildLocalSymlink(); err != nil {
+			return sectorbuilder.PublicPieceInfo{}, xerrors.Errorf("build local symlink: %w", err)
 		}
 
 		stagedPathLast := fs.SectorPath(filepath.Join(lotusStoragePath, string(fs.DataStaging), fs.SectorName(m.maddr, sectorID)))
@@ -307,6 +297,43 @@ func saveJson(data []byte, path string) error {
 	_, err = file.Write(data)
 	if err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func buildLocalSymlink() error {
+	lotusStoragePath, ex := os.LookupEnv("LOTUS_STORAGE_PATH")
+	if !ex {
+		lotusStoragePath = os.Getenv("HOME") + "/.lotusstorage"
+	}
+
+	symlinkSealedPath := lotusStoragePath + "/" + string(fs.DataLocalSealed)
+	localSealedPath := os.Getenv("HOME") + "/.lotusstorage/" + string(fs.DataLocalSealed)
+	if _, err := os.Stat(localSealedPath); err != nil {
+		if !os.IsNotExist(err) {
+			return xerrors.Errorf("local sealed path os.Stat: %w", err)
+		}
+		if err := os.MkdirAll(localSealedPath, 0755); err != nil {
+			return xerrors.Errorf("local sealed path os.MkdirAll: %w", err)
+		}
+	}
+	if err := os.Symlink(localSealedPath, symlinkSealedPath); err != nil {
+		return xerrors.Errorf("create sealed symlink: %w", err)
+	}
+
+	symlinkCachePath := lotusStoragePath + "/" + string(fs.DataLocalCache)
+	localCachePath := os.Getenv("HOME") + "/.lotusstorage/" + string(fs.DataLocalCache)
+	if _, err := os.Stat(localCachePath); err != nil {
+		if !os.IsNotExist(err) {
+			return xerrors.Errorf("local cache path os.Stat: %w", err)
+		}
+		if err := os.MkdirAll(localCachePath, 0755); err != nil {
+			return xerrors.Errorf("local cache path os.MkdirAll: %w", err)
+		}
+	}
+	if err := os.Symlink(localCachePath, symlinkCachePath); err != nil {
+		return xerrors.Errorf("create cache symlink: %w", err)
 	}
 
 	return nil

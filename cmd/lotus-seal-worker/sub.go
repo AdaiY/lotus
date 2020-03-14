@@ -99,6 +99,10 @@ func (w *worker) processTask(ctx context.Context, task sectorbuilder.WorkerTask)
 		}
 		res.Rspco = rspco.ToJson()
 
+		if err := w.copySealedSector(task.SectorID); err != nil {
+			return errRes(xerrors.Errorf("pushing precommited data: %w", err))
+		}
+
 	case sectorbuilder.WorkerCommit:
 		w.limiter.workLimit <- struct{}{}
 		proof, err := w.sb.SealCommit(ctx, task.SectorID, task.SealTicket, task.SealSeed, task.Pieces, task.Rspco)
@@ -110,18 +114,13 @@ func (w *worker) processTask(ctx context.Context, task sectorbuilder.WorkerTask)
 
 		res.Proof = proof
 
-		workerPath, ex := os.LookupEnv("WORKER_PATH")
-		if !ex {
-			workerPath = os.Getenv("HOME") + "/.lotusworker"
-		}
-		cachePath := fs.SectorPath(filepath.Join(workerPath, string(fs.DataCache), fs.SectorName(w.sb.Miner, task.SectorID)))
-		localCachePath := fs.SectorPath(filepath.Join(os.Getenv("HOME")+"/.lotusstorage/", string(fs.DataLocalCache), fs.SectorName(w.sb.Miner, task.SectorID)))
-		cmd := exec.Command("mv", "-f", string(localCachePath), string(cachePath))
-		log.Infof("moving sector cache: mv -f %s %s", string(localCachePath), string(cachePath))
-		if err := cmd.Run(); err != nil {
-			return errRes(xerrors.Errorf("move sector cache: %w", err))
+		if err := w.moveCache(task.SectorID); err != nil {
+			return errRes(xerrors.Errorf("pushing precommited data: %w", err))
 		}
 
+		if err := w.removeSealedSector(task.SectorID); err != nil {
+			return errRes(xerrors.Errorf("cleaning up sealed sector: %w", err))
+		}
 	}
 
 	return res
@@ -169,6 +168,49 @@ func (w *worker) fetchStagedSector() error {
 		if err := cmd.Run(); err != nil {
 			return xerrors.Errorf("copy staged sector: %w", err)
 		}
+	}
+
+	return nil
+}
+
+func (w *worker) copySealedSector(sectorID uint64) error {
+	workerPath, ex := os.LookupEnv("WORKER_PATH")
+	if !ex {
+		workerPath = os.Getenv("HOME") + "/.lotusworker"
+	}
+
+	sealedPath := fs.SectorPath(filepath.Join(workerPath, string(fs.DataSealed), fs.SectorName(w.sb.Miner, sectorID)))
+	localSealedPath := fs.SectorPath(filepath.Join(os.Getenv("HOME")+"/.lotusstorage/", string(fs.DataLocalSealed), fs.SectorName(w.sb.Miner, sectorID)))
+
+	cmd := exec.Command("cp", "-rf", string(localSealedPath), string(sealedPath))
+	log.Infof("copping sealed sector: cp -rf %s %s", string(localSealedPath), string(sealedPath))
+	if err := cmd.Run(); err != nil {
+		return xerrors.Errorf("copy sealed sector: %w", err)
+	}
+
+	return nil
+}
+
+func (w *worker) removeSealedSector(sectorID uint64) error {
+	localSealedPath := fs.SectorPath(filepath.Join(os.Getenv("HOME")+"/.lotusstorage/", string(fs.DataLocalSealed), fs.SectorName(w.sb.Miner, sectorID)))
+	if err := os.Remove(string(localSealedPath)); err != nil {
+		return xerrors.Errorf("remove sealed sector: %w", err)
+	}
+	return nil
+}
+
+func (w *worker) moveCache(sectorID uint64) error {
+	workerPath, ex := os.LookupEnv("WORKER_PATH")
+	if !ex {
+		workerPath = os.Getenv("HOME") + "/.lotusworker"
+	}
+	cachePath := fs.SectorPath(filepath.Join(workerPath, string(fs.DataCache), fs.SectorName(w.sb.Miner, sectorID)))
+	localCachePath := fs.SectorPath(filepath.Join(os.Getenv("HOME")+"/.lotusstorage/", string(fs.DataLocalCache), fs.SectorName(w.sb.Miner, sectorID)))
+
+	cmd := exec.Command("mv", "-f", string(localCachePath), string(cachePath))
+	log.Infof("moving sector cache: mv -f %s %s", string(localCachePath), string(cachePath))
+	if err := cmd.Run(); err != nil {
+		return xerrors.Errorf("move sector cache: %w", err)
 	}
 
 	return nil

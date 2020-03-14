@@ -84,6 +84,7 @@ require (
 	github.com/multiformats/go-multihash v0.0.10
 	github.com/multiformats/go-varint v0.0.2
 	github.com/opentracing/opentracing-go v1.1.0
+	github.com/pkg/errors v0.8.1
 	github.com/polydawn/refmt v0.0.0-20190809202753-05966cbd336a
 	github.com/prometheus/common v0.2.0
 	github.com/stretchr/testify v1.4.0
