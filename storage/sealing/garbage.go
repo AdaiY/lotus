@@ -3,16 +3,20 @@ package sealing
 import (
 	"bytes"
 	"context"
+	"encoding/json"
+	sectorbuilder "github.com/filecoin-project/go-sectorbuilder"
+	"github.com/filecoin-project/go-sectorbuilder/fs"
+	"github.com/filecoin-project/lotus/chain/actors"
+	"github.com/filecoin-project/lotus/chain/types"
+	"golang.org/x/xerrors"
 	"io"
 	"math"
 	"math/bits"
 	"math/rand"
-
-	sectorbuilder "github.com/filecoin-project/go-sectorbuilder"
-	"golang.org/x/xerrors"
-
-	"github.com/filecoin-project/lotus/chain/actors"
-	"github.com/filecoin-project/lotus/chain/types"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"strings"
 )
 
 func (m *Sealing) pledgeReader(size uint64, parts uint64) io.Reader {
@@ -40,7 +44,8 @@ func (m *Sealing) pledgeSector(ctx context.Context, sectorID uint64, existingPie
 
 	deals := make([]actors.StorageDealProposal, len(sizes))
 	for i, size := range sizes {
-		commP, err := m.fastPledgeCommitment(size, uint64(1))
+		//commP, err := m.fastPledgeCommitment(size, uint64(1))
+		commP, err := m.readCommPJson(sectorID, size)
 		if err != nil {
 			return nil, err
 		}
@@ -100,7 +105,8 @@ func (m *Sealing) pledgeSector(ctx context.Context, sectorID uint64, existingPie
 
 	out := make([]Piece, len(sizes))
 	for i, size := range sizes {
-		ppi, err := m.sb.AddPiece(ctx, size, sectorID, m.pledgeReader(size, uint64(1)), existingPieceSizes)
+		//ppi, err := m.sb.AddPiece(ctx, size, sectorID, m.pledgeReader(size, uint64(1)), existingPieceSizes)
+		ppi, err := m.readPPIJson(ctx, sectorID, size, existingPieceSizes)
 		if err != nil {
 			return nil, xerrors.Errorf("add piece: %w", err)
 		}
@@ -142,5 +148,166 @@ func (m *Sealing) PledgeSector() error {
 			return
 		}
 	}()
+	return nil
+}
+
+type StagedCommP struct {
+	CommP [sectorbuilder.CommLen]byte
+	Path  string
+}
+
+func (m *Sealing) readCommPJson(sectorID uint64, size uint64) ([sectorbuilder.CommLen]byte, error) {
+	lotusStoragePath, ex := os.LookupEnv("LOTUS_STORAGE_PATH")
+	if !ex {
+		lotusStoragePath = os.Getenv("HOME") + "/.lotusstorage"
+	}
+	CommPFile := lotusStoragePath + "/CommP.json"
+
+	file, err := os.Open(CommPFile)
+
+	if err != nil {
+		if !os.IsNotExist(err) {
+			return [sectorbuilder.CommLen]byte{}, xerrors.Errorf("comP json file os.OpenFile: %w", err)
+		}
+
+		commP, err := m.fastPledgeCommitment(size, uint64(1))
+		if err != nil {
+			return [sectorbuilder.CommLen]byte{}, err
+		}
+		stagedPath := fs.SectorPath(filepath.Join(lotusStoragePath, fs.SectorName(m.maddr, sectorID)))
+		scf := StagedCommP{
+			CommP: commP,
+			Path:  string(stagedPath),
+		}
+		data, err := json.Marshal(scf)
+		if err != nil {
+			return [sectorbuilder.CommLen]byte{}, xerrors.Errorf("marshal stagedCommP json: %w", err)
+		}
+
+		if err := saveJson(data, CommPFile); err != nil {
+			return [sectorbuilder.CommLen]byte{}, xerrors.Errorf("save commP json: %w", err)
+		}
+
+		return commP, err
+	}
+
+	defer func() {
+		if err := file.Close(); err != nil {
+			log.Warnf("comP json file closed failed: %w", err)
+		}
+	}()
+
+	data := make([]byte, 2000)
+	n, err := file.Read(data)
+	if err != nil {
+		return [sectorbuilder.CommLen]byte{}, xerrors.Errorf("read commP json: %w", err)
+	}
+	var sp StagedCommP
+	if err := json.Unmarshal(data[:n], &sp); err != nil {
+		return [sectorbuilder.CommLen]byte{}, xerrors.Errorf("unmarshal commP json: %w", err)
+	}
+
+	localStoragePath := os.Getenv("HOME") + "/.lotusstorage" + sp.Path[strings.LastIndex(sp.Path, "/"):]
+	stagedPath := fs.SectorPath(filepath.Join(lotusStoragePath, string(fs.DataStaging), fs.SectorName(m.maddr, sectorID)))
+	if err := os.Symlink(localStoragePath, string(stagedPath)); err != nil {
+		return [sectorbuilder.CommLen]byte{}, xerrors.Errorf("create staged path symlink: %w", err)
+	}
+
+	return sp.CommP, nil
+}
+
+func (m *Sealing) readPPIJson(ctx context.Context, sectorID uint64, size uint64, existingPieceSizes []uint64) (sectorbuilder.PublicPieceInfo, error) {
+	lotusStoragePath, ex := os.LookupEnv("LOTUS_STORAGE_PATH")
+	if !ex {
+		lotusStoragePath = os.Getenv("HOME") + "/.lotusstorage"
+	}
+	PPIFile := lotusStoragePath + "/PPI.json"
+
+	file, err := os.Open(PPIFile)
+
+	if err != nil {
+		if !os.IsNotExist(err) {
+			return sectorbuilder.PublicPieceInfo{}, xerrors.Errorf("PPI json file os.OpenFile: %w", err)
+		}
+
+		ppi, err := m.sb.AddPiece(ctx, size, sectorID, m.pledgeReader(size, uint64(1)), existingPieceSizes)
+		if err != nil {
+			return sectorbuilder.PublicPieceInfo{}, xerrors.Errorf("add piece: %w", err)
+		}
+
+		data, err := json.Marshal(ppi)
+		if err != nil {
+			return sectorbuilder.PublicPieceInfo{}, xerrors.Errorf("marshal ppi json: %w", err)
+		}
+		if err := saveJson(data, PPIFile); err != nil {
+			return sectorbuilder.PublicPieceInfo{}, xerrors.Errorf("save ppi json: %w", err)
+		}
+
+		symlinkCachePath := lotusStoragePath + "/" + string(fs.DataLocalCache)
+		localCachePath := os.Getenv("HOME") + "/.lotusstorage/" + string(fs.DataLocalCache)
+		if _, err := os.Stat(localCachePath); err != nil {
+			if !os.IsNotExist(err) {
+				return sectorbuilder.PublicPieceInfo{}, xerrors.Errorf("local cache path os.Stat: %w", err)
+			}
+			if err := os.MkdirAll(localCachePath, 0755); err != nil {
+				return sectorbuilder.PublicPieceInfo{}, xerrors.Errorf("local cache path os.MkdirAll: %w", err)
+			}
+		}
+		if err := os.Symlink(localCachePath, symlinkCachePath); err != nil {
+			return sectorbuilder.PublicPieceInfo{}, xerrors.Errorf("create cache symlink: %w", err)
+		}
+
+		stagedPathLast := fs.SectorPath(filepath.Join(lotusStoragePath, string(fs.DataStaging), fs.SectorName(m.maddr, sectorID)))
+		stagedPath := fs.SectorPath(filepath.Join(lotusStoragePath, fs.SectorName(m.maddr, sectorID)))
+		localStagedPath := fs.SectorPath(filepath.Join(os.Getenv("HOME")+"/.lotusstorage", fs.SectorName(m.maddr, sectorID)))
+		if err := os.Rename(string(stagedPathLast), string(stagedPath)); err != nil {
+			return sectorbuilder.PublicPieceInfo{}, xerrors.Errorf("move staged sector: %w", err)
+		}
+		cmd := exec.Command("cp", "-rf", string(stagedPath), string(localStagedPath))
+		log.Infof("copping staged sector: cp -rf %s %s", string(stagedPath), string(localStagedPath))
+		if err := cmd.Run(); err != nil {
+			return sectorbuilder.PublicPieceInfo{}, xerrors.Errorf("copy staged sector: %w", err)
+		}
+		if err := os.Symlink(string(localStagedPath), string(stagedPathLast)); err != nil {
+			return sectorbuilder.PublicPieceInfo{}, xerrors.Errorf("create staged path symlink: %w", err)
+		}
+
+		return ppi, err
+	}
+	defer func() {
+		if err := file.Close(); err != nil {
+			log.Warnf("PPI json file closed failed: %w", err)
+		}
+	}()
+
+	data := make([]byte, 2000)
+	n, err := file.Read(data)
+	if err != nil {
+		return sectorbuilder.PublicPieceInfo{}, xerrors.Errorf("read ppi json: %w", err)
+	}
+	var ppi sectorbuilder.PublicPieceInfo
+	if err := json.Unmarshal(data[:n], &ppi); err != nil {
+		return sectorbuilder.PublicPieceInfo{}, xerrors.Errorf("unmarshal ppi json: %w", err)
+	}
+
+	return ppi, nil
+}
+
+func saveJson(data []byte, path string) error {
+	file, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0644)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err := file.Close(); err != nil {
+			log.Warnf("ppi json file closed failed: %w", err)
+		}
+	}()
+
+	_, err = file.Write(data)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
